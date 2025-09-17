@@ -4,7 +4,7 @@
 
 # Site
 title: 贺腾的博客
-subtitle: ''
+subtitle: '技术改变生活'
 description: '我等的不是海边'
 keywords:
 author: 贺腾
@@ -13,7 +13,7 @@ timezone: 'Asia/Shanghai'
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: http://example.com
+url: https://brinjaul521.github.io
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
@@ -104,7 +104,9 @@ theme: butterfly
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
-  type: ''
+  type: git
+  repository: git@github.com:brinjaul521/brinjaul521.github.io.git
+  branch: main
 
 # hexo-generator-searchdb
 search:
