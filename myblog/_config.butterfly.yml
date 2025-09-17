@@ -39,7 +39,7 @@ menu:
 
 code_blocks:
   # Code block theme: darker / pale night / light / ocean / false
-  theme: light
+  theme: darker
   macStyle: false
   # Code block height limit (unit: px)
   height_limit: false
@@ -57,7 +57,7 @@ code_blocks:
 #   icon: link || the description || color
 social:
   fab fa-github: https://github.com/brinjaul521/ || Github || '#24292e'
-  fas fa-envelope: 1061391142@qq.com || Email || '#4a7dbe'
+  fas fa-envelope: mailto:1061391142@qq.com || Email || '#4a7dbe'
 
 # --------------------------------------
 # Image Settings
@@ -73,7 +73,7 @@ avatar:
 disable_top_img: false
 
 # If the banner of page not setting, it will show the default_top_img
-default_top_img:
+default_top_img: /img/background.png
 
 # The banner image of index page
 index_img: /img/background.png
@@ -102,7 +102,7 @@ footer_img: false
 
 # Website Background
 # Can set it to color or image url
-background: /img/background.jpg
+background: myblog/img/background.jpg
 
 cover:
   # Disable the cover or not
@@ -168,12 +168,13 @@ subtitle:
   # It will show the source first, then show the content of sub
   # Choose: false/1/2/3
   # false - disable the function
-  # 1 - hitokoto.cn
+  # 1 - hitokoto.cns
   # 2 - https://api.aa1.cn/doc/yiyan.html
   # 3 - jinrishici.com
   source: false
   # If you close the typewriter effect, the subtitle will only show the first line of sub
   sub:
+    - 要不要跟我去码头整点薯条
 
 # Article layout on the homepage
 # 1: Cover on the left, info on the right
@@ -301,7 +302,7 @@ aside:
       link: https://github.com/xxxxxx
   card_announcement:
     enable: true
-    content: This is my Blog
+    content: 记录一下学习路线，顺便找个工作
   card_recent_post:
     enable: true
     # If set 0 will show all
