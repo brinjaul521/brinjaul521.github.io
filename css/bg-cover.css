@@ -1,0 +1,15 @@
+/* source/css/bg-cover.css */
+html, body,
+#recent-posts > .recent-post-item,
+#main-inner, #content, .post-block, .layout_post > #post,
+.page-header-post, .header-inner {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+/* 背景图 */
+body {
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
