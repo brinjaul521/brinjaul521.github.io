@@ -79,30 +79,31 @@ default_top_img: /img/background.png
 index_img: /img/background.png
 
 # The banner image of archive page
-archive_img:
+archive_img: /img/background.png
 
 # Note: tag page, not tags page
-tag_img:
+tag_img: /img/background.png
 
 # The banner image of tag page, you can set the banner image for each tag
 # Format:
 #  - tag name: xxxxx
-tag_per_img:
+tag_per_img: /img/background.png
 
 # Note: category page, not categories page
-category_img:
+category_img: /img/background.png
 
 # The banner image of category page, you can set the banner image for each category
 # Format:
 #  - category name: xxxxx
-category_per_img:
+category_per_img: /img/background.png
 
 # The background image of footer
 footer_img: false
 
 # Website Background
 # Can set it to color or image url
-background: myblog/img/background.jpg
+background: rgba(255,255,255,0.15) 
+
 
 cover:
   # Disable the cover or not
@@ -158,7 +159,7 @@ index_top_img_height:
 
 # The subtitle on homepage
 subtitle:
-  enable: false
+  enable: true
   # Typewriter Effect
   effect: true
   # Customize typed.js
@@ -299,7 +300,7 @@ aside:
       enable: true
       icon: fab fa-github
       text: Follow Me
-      link: https://github.com/xxxxxx
+      link: https://github.com/brinjaul521/
   card_announcement:
     enable: true
     content: 记录一下学习路线，顺便找个工作
