@@ -1,6 +1,6 @@
 /* 全站背景音乐播放器 - 纯前端版 */
 (function () {
-    const PLAY_LIST = ['/music/bg.mp3'];          // 多首就继续 push
+    const PLAY_LIST = ['/music/偏向.mp3'];          // 多首就继续 push
     const volumeKey = 'bg-player-volume';        // localStorage 记忆音量
     let muted = localStorage.getItem('bg-player-muted') === '1';
     let current = 0, audio = new Audio();
