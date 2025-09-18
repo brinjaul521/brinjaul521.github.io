@@ -102,7 +102,7 @@ footer_img: false
 
 # Website Background
 # Can set it to color or image url
-background: rgba(255,255,255,0.15) 
+background: /img/background.png 
 
 
 cover:
@@ -1064,6 +1064,13 @@ css_prefix: true
 # Insert the code to head (before '</head>' tag) and the bottom (before '</body>' tag)
 inject:
   head:
+    - |
+      <meta property="og:type" content="article">
+      <meta property="og:title" content="{{ title | default config.title }}">
+      <meta property="og:image" content="{{ cover | default config.avatar }}">
+      <meta property="og:description" content="{{ description | default excerpt | default config.description }}">
+      <meta property="og:url" content="{{ url }}">
+      <meta name="twitter:card" content="summary_large_image">
     # - <link rel="stylesheet" href="/xxx.css">
   bottom:
     # - <script src="xxxx"></script>
