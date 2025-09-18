@@ -145,7 +145,7 @@
   pageType: 'page'
 }</script><meta property="og:type" content="article">
 <meta property="og:title" content="{{ title | default config.title }}">
-<meta property="og:image" content="{{ cover | default config.avatar }}">
+<meta property="og:image" content="{{ url | append cover | default config.url | append '/img/default-cover.jpg' }}">
 <meta property="og:description" content="{{ description | default excerpt | default config.description }}">
 <meta property="og:url" content="{{ url }}">
 <meta name="twitter:card" content="summary_large_image">
