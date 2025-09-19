@@ -1,0 +1,411 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>3DGS-DR部署及训练教程 | 贺腾的博客</title><meta name="author" content="贺腾"><meta name="copyright" content="贺腾"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="3DGS-DR部署及训练教程 项目介绍​	paper：3D Gaussian Splatting with Deferred Reflection ​	web:3D Gaussian Splatting with Deferred Reflection ​	github：https:&#x2F;&#x2F;github.com&#x2F;gapszju&#x2F;3DGS-DR.git ​	摘要：神经与高斯基辐射场方法的兴起在新视角合成">
+<meta property="og:type" content="article">
+<meta property="og:title" content="3DGS-DR部署及训练教程">
+<meta property="og:url" content="https://brinjaul521.github.io/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/index.html">
+<meta property="og:site_name" content="贺腾的博客">
+<meta property="og:description" content="3DGS-DR部署及训练教程 项目介绍​	paper：3D Gaussian Splatting with Deferred Reflection ​	web:3D Gaussian Splatting with Deferred Reflection ​	github：https:&#x2F;&#x2F;github.com&#x2F;gapszju&#x2F;3DGS-DR.git ​	摘要：神经与高斯基辐射场方法的兴起在新视角合成">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://brinjaul521.github.io/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/pipeline.png">
+<meta property="article:published_time" content="2025-09-19T12:29:28.000Z">
+<meta property="article:modified_time" content="2025-09-19T12:35:14.698Z">
+<meta property="article:author" content="贺腾">
+<meta property="article:tag" content="3DGS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://brinjaul521.github.io/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/pipeline.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "3DGS-DR部署及训练教程",
+  "url": "https://brinjaul521.github.io/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/",
+  "image": "https://brinjaul521.github.io/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/pipeline.png",
+  "datePublished": "2025-09-19T12:29:28.000Z",
+  "dateModified": "2025-09-19T12:35:14.698Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "贺腾",
+      "url": "https://brinjaul521.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/head.jpg"><link rel="canonical" href="https://brinjaul521.github.io/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '3DGS-DR部署及训练教程',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta property="og:type" content="article">
+<meta property="og:title" content="{{ title | default config.title }}">
+<meta property="og:image" content="{{ url | append cover | default config.url | append '/img/default-cover.jpg' }}">
+<meta property="og:description" content="{{ description | default excerpt | default config.description }}">
+<meta property="og:url" content="{{ url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/img/background.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/head.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-comments-o"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/pipeline.png);"><nav id="nav"><span id="blog-info"><a href="/" title="贺腾的博客"><img class="site-icon" src="/img/head.jpg" alt="Logo"><span class="site-name">贺腾的博客</span></a><a class="nav-page-title" href="/"><span class="site-name">3DGS-DR部署及训练教程</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-comments-o"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">3DGS-DR部署及训练教程</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-09-19T12:29:28.000Z" title="发表于 2025-09-19 20:29:28">2025-09-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-09-19T12:35:14.698Z" title="更新于 2025-09-19 20:35:14">2025-09-19</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="3DGS-DR部署及训练教程"><a href="#3DGS-DR部署及训练教程" class="headerlink" title="3DGS-DR部署及训练教程"></a>3DGS-DR部署及训练教程</h1><p><img src="/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/pipeline.png" alt="alt text"></p>
+<h2 id="项目介绍"><a href="#项目介绍" class="headerlink" title="项目介绍"></a>项目介绍</h2><p>​	paper：<a target="_blank" rel="noopener" href="https://gapszju.github.io/3DGS-DR/static/pdf/3DGS_DR.pdf">3D Gaussian Splatting with Deferred Reflection</a></p>
+<p>​	web:<a target="_blank" rel="noopener" href="https://gapszju.github.io/3DGS-DR/">3D Gaussian Splatting with Deferred Reflection</a></p>
+<p>​	github：<a target="_blank" rel="noopener" href="https://github.com/gapszju/3DGS-DR.git">https://github.com/gapszju/3DGS-DR.git</a></p>
+<p>​	摘要：神经与高斯基辐射场方法的兴起在新视角合成领域取得了巨大成功。然而，镜面反射仍然是一个非平凡的问题，因为高频辐射场 notoriously 难以稳定且准确地拟合。我们提出了一种延迟着色方法，能够有效地利用高斯溅射渲染镜面反射。关键挑战来自于环境贴图反射模型，该模型需要精确的表面法线，同时其不连续的梯度又成为法线估计的瓶颈。我们利用延迟着色生成的逐像素反射梯度，在相邻高斯的优化过程之间架起桥梁，使得近乎正确的法线估计能够逐步传播，最终覆盖所有反射物体。我们的方法在合成高质量镜面反射效果方面显著优于现有最先进技术和同期工作，在合成场景与真实场景中均实现了峰值信噪比（PSNR）的持续提升，同时运行帧率几乎与原始高斯溅射相同。</p>
+<h2 id="项目部署"><a href="#项目部署" class="headerlink" title="项目部署"></a>项目部署</h2><h3 id="首先克隆代码到本地"><a href="#首先克隆代码到本地" class="headerlink" title="首先克隆代码到本地"></a>首先克隆代码到本地</h3><figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/gapszju/<span class="number">3</span>DGS-DR.git</span><br></pre></td></tr></table></figure>
+
+<h3 id="下载项目依赖（必须手动下的）"><a href="#下载项目依赖（必须手动下的）" class="headerlink" title="下载项目依赖（必须手动下的）"></a>下载项目依赖（必须手动下的）</h3><figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pip install submodules/cubemapencoder</span><br><span class="line">pip install submodules/diff-gaussian-rasterization_c3</span><br><span class="line">pip install submodules/diff-gaussian-rasterization_c7</span><br><span class="line">pip install submodules/simple-knn</span><br></pre></td></tr></table></figure>
+
+<h3 id="下载数据集（点击链接下载）"><a href="#下载数据集（点击链接下载）" class="headerlink" title="下载数据集（点击链接下载）"></a>下载数据集（点击链接下载）</h3><p><a target="_blank" rel="noopener" href="https://storage.googleapis.com/gresearch/refraw360/ref.zip">Shiny Blender Synthetic</a></p>
+<p> <a target="_blank" rel="noopener" href="https://storage.googleapis.com/gresearch/refraw360/ref_real.zip">Shiny Blender Real</a></p>
+<p> <a target="_blank" rel="noopener" href="https://liuyuan-pal.github.io/NeRO/">Glossy Synthetic</a></p>
+<p><a target="_blank" rel="noopener" href="https://drive.google.com/drive/folders/128yBriW1IG_3NJ5Rp7APSTZsJqdJdfc1">NeRF Synthetic dataset</a>.</p>
+<p>​	</p>
+<figure class="highlight bat"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> data #新建文件夹放数据集</span><br><span class="line">ln -s PATH_TO_DATASET data #创建数据集链接</span><br></pre></td></tr></table></figure>
+
+<h2 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h2><h3 id="执行命令并设置自定义选项"><a href="#执行命令并设置自定义选项" class="headerlink" title="执行命令并设置自定义选项"></a>执行命令并设置自定义选项</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh train.sh </span><br></pre></td></tr></table></figure>
+
+<p>你可能需要修改 <code>train.sh</code> 中的路径。</p>
+<p><code>train.py</code> 的命令行参数说明：</p>
+<ul>
+<li><p><code>--longer_prop_iter</code><br>增加法线传播的迭代次数。如果发现默认配置无法很好地完成法线传播，可以设置为 <code>--longer_prop_iter 24000</code> 或更高。<br><strong>默认值：0</strong></p>
+</li>
+<li><p><code>--opac_lr0_interval</code><br>为了加快法线传播，建议保持默认值 <strong>200</strong>。但在某些情况下，该值可能导致不稳定或质量下降。此时可将其设为 <strong>0</strong>，并将 <code>--longer_prop_iter</code> 设为 <strong>36000</strong> 或更高，以获得更好效果。<br><strong>默认值：200</strong></p>
+</li>
+<li><p><code>--densification_interval_when_prop</code><br>法线传播过程中的致密化间隔。若场景中主要包含粗糙物体，建议设置为 <strong>100</strong>。<br><strong>默认值：500</strong></p>
+</li>
+<li><p><code>--use_env_scope</code><br>针对真实场景，添加此参数以消除背景干扰。<code>env_scope_center</code> 和 <code>env_scope_radius</code> 用于定义环境光作用的球形区域。</p>
+</li>
+<li><p><code>--env_scope_center</code> 与 <code>--env_scope_radius</code><br>定义球形区域的中心与半径，用于限定环境光的作用范围。</p>
+</li>
+</ul>
+<h2 id="评价指标"><a href="#评价指标" class="headerlink" title="评价指标"></a>评价指标</h2><p>运行以下命令进行评估：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python eval.py --model_path output/NAME_OF_THE_SCENE <span class="comment">#选择训练得到的结果文件夹</span></span><br></pre></td></tr></table></figure>
+
+<p>你将得到 <strong>PSNR、SSIM、LPIPS 和 FPS</strong> 的结果。<br>如果需要保存生成的图像和光照结果，请添加参数 <code>--save_images</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">python eval.py --model_path output/NAME_OF_THE_SCENE --save_images</span><br><span class="line">---</span><br><span class="line"></span><br><span class="line"><span class="comment">### 性能更新说明：</span></span><br><span class="line">我们已进一步优化代码，并重新调整了部分阈值参数。  </span><br><span class="line">- **训练时间**：  </span><br><span class="line">  - 合成数据集：约 **10 分钟**  </span><br><span class="line">  - 真实场景数据集：约 **30 分钟**  </span><br><span class="line">- **平均 FPS** 也有显著提升。</span><br></pre></td></tr></table></figure>
+
+<h2 id="可视化"><a href="#可视化" class="headerlink" title="可视化"></a>可视化</h2><p>我们提供了一个基于 <strong>Dear PyGui</strong> 的简单图形界面查看器。请先安装依赖：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install dearpygui</span><br></pre></td></tr></table></figure>
+
+<h3 id="启动步骤："><a href="#启动步骤：" class="headerlink" title="启动步骤："></a>启动步骤：</h3><h4 id="1-启动服务端："><a href="#1-启动服务端：" class="headerlink" title="1. 启动服务端："></a>1. 启动服务端：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python net_viewer.py --model_path output/NAME_OF_THE_SCENE</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-启动客户端："><a href="#2-启动客户端：" class="headerlink" title="2. 启动客户端："></a>2. 启动客户端：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> net_viewer_client</span><br><span class="line">python net_viewer.py</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="自定义真实场景数据集："><a href="#自定义真实场景数据集：" class="headerlink" title="自定义真实场景数据集："></a>自定义真实场景数据集：</h3><p>为了获得更好的新视角合成质量，你可能需要指定一个球形区域，用于限定环境光的作用范围。<br><strong>最简单的方法是：</strong></p>
+<ol>
+<li>将初始点云导入 <strong>Blender</strong>；</li>
+<li>添加一个球体，覆盖主要反射物体；</li>
+<li>使用该球体的 <strong>中心坐标</strong> 和 <strong>半径</strong> 作为训练参数；</li>
+<li>具体参数设置请参考前面的《train.py 命令行参数说明》。</li>
+</ol>
+<h2 id="我在部署过程中遇到的问题以及解决方案"><a href="#我在部署过程中遇到的问题以及解决方案" class="headerlink" title="我在部署过程中遇到的问题以及解决方案"></a>我在部署过程中遇到的问题以及解决方案</h2><p>​	<em>声明：我在部署时候直接在物理机部署，未使用conda和docker，欢迎补充</em></p>
+<h3 id="我想在clone时候使用代理直接将仓库及子模块一起拉下来但是失败了"><a href="#我想在clone时候使用代理直接将仓库及子模块一起拉下来但是失败了" class="headerlink" title="我想在clone时候使用代理直接将仓库及子模块一起拉下来但是失败了"></a>我想在clone时候使用代理直接将仓库及子模块一起拉下来但是失败了</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">&quot;/home/ljp/cudaProject/3DGS-DR/train.py&quot;</span>, line <span class="number">5</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    <span class="keyword">from</span> utils.loss_utils <span class="keyword">import</span> l1_loss, ssim</span><br><span class="line">  File <span class="string">&quot;/home/ljp/cudaProject/3DGS-DR/utils/loss_utils.py&quot;</span>, line <span class="number">16</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    <span class="keyword">from</span> kornia.filters <span class="keyword">import</span> bilateral_blur</span><br><span class="line">ModuleNotFoundError: No module named <span class="string">&#x27;kornia&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>一句话：<strong>你当前环境里缺 <code>kornia</code> 这个 Python 包</strong>，并且 <code>train.sh</code> 脚本里还混进了 Windows 风格的换行符，导致 shell 报错 “<code>: not found</code>”。</p>
+<hr>
+<h3 id="✅-先解决-ModuleNotFoundError-No-module-named-‘kornia’"><a href="#✅-先解决-ModuleNotFoundError-No-module-named-‘kornia’" class="headerlink" title="✅ 先解决 ModuleNotFoundError: No module named ‘kornia’"></a>✅ 先解决 <strong>ModuleNotFoundError: No module named ‘kornia’</strong></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在你激活的 conda 环境里</span></span><br><span class="line">pip install kornia</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>如果已经装过，确认是否装到了 <strong>当前环境</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">which</span> python</span><br><span class="line">pip show kornia</span><br></pre></td></tr></table></figure></blockquote>
+<hr>
+<h3 id="✅-再解决-train-sh-not-found"><a href="#✅-再解决-train-sh-not-found" class="headerlink" title="✅ 再解决 train.sh: not found"></a>✅ 再解决 <strong>train.sh: not found</strong></h3><p>这是因为你把 <strong>Windows 下编辑的脚本直接拿到 Linux 上跑</strong>，行尾是 <code>\r\n</code>，Linux 只认 <code>\n</code>。</p>
+<h4 id="两种改法（任选其一）："><a href="#两种改法（任选其一）：" class="headerlink" title="两种改法（任选其一）："></a>两种改法（任选其一）：</h4><h4 id="①-用-dos2unix-一键转格式"><a href="#①-用-dos2unix-一键转格式" class="headerlink" title="① 用 dos2unix 一键转格式"></a>① 用 <code>dos2unix</code> 一键转格式</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt install dos2unix       <span class="comment"># 若未安装</span></span><br><span class="line">dos2unix train.sh</span><br></pre></td></tr></table></figure>
+
+<h4 id="②-手动删-r"><a href="#②-手动删-r" class="headerlink" title="② 手动删 \r"></a>② 手动删 <code>\r</code></h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;s/\r$//&#x27;</span> train.sh</span><br></pre></td></tr></table></figure>
+
+<p>改完再执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chmod</span> +x train.sh</span><br><span class="line">./train.sh</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="✅-总结：你现在只需要两条命令"><a href="#✅-总结：你现在只需要两条命令" class="headerlink" title="✅ 总结：你现在只需要两条命令"></a>✅ 总结：你现在只需要两条命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip install kornia</span><br><span class="line">dos2unix train.sh</span><br></pre></td></tr></table></figure>
+
+<p>再重新运行即可。如果还有别的包缺失，把报错贴出来，我继续帮你补。</p>
+</blockquote>
+<h3 id="老问题，新缺包："><a href="#老问题，新缺包：" class="headerlink" title="老问题，新缺包："></a>老问题，新缺包：</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> scene.gaussian_model <span class="keyword">import</span> GaussianModel</span><br><span class="line"> File <span class="string">&quot;/home/ljp/cudaProject/3DGS-DR/scene/__init__.py&quot;</span>, line <span class="number">17</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">   <span class="keyword">from</span> scene.dataset_readers <span class="keyword">import</span> sceneLoadTypeCallbacks</span><br><span class="line"> File <span class="string">&quot;/home/ljp/cudaProject/3DGS-DR/scene/dataset_readers.py&quot;</span>, line <span class="number">22</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">   <span class="keyword">from</span> plyfile <span class="keyword">import</span> PlyData, PlyElement</span><br></pre></td></tr></table></figure>
+
+<p><strong><code>plyfile</code> 没装</strong>。<br>只要在你当前的 conda 环境里执行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install plyfile</span><br></pre></td></tr></table></figure>
+
+<p>即可。</p>
+<h3 id="Flask-与-Werkzeug-版本不匹配"><a href="#Flask-与-Werkzeug-版本不匹配" class="headerlink" title="Flask 与 Werkzeug 版本不匹配"></a>Flask 与 Werkzeug 版本不匹配</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">import</span> flask</span><br><span class="line">  File <span class="string">&quot;/home/ljp/anaconda3/lib/python3.10/site-packages/flask/__init__.py&quot;</span>, line <span class="number">5</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    <span class="keyword">from</span> .app <span class="keyword">import</span> Flask <span class="keyword">as</span> Flask</span><br><span class="line">  File <span class="string">&quot;/home/ljp/anaconda3/lib/python3.10/site-packages/flask/app.py&quot;</span>, line <span class="number">30</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    <span class="keyword">from</span> werkzeug.urls <span class="keyword">import</span> url_quote</span><br><span class="line">ImportError: cannot <span class="keyword">import</span> name <span class="string">&#x27;url_quote&#x27;</span> <span class="keyword">from</span> <span class="string">&#x27;werkzeug.urls&#x27;</span> (/home/ljp/anaconda3/lib/python3<span class="number">.10</span>/site-packages/werkzeug/urls.py)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>Flask 与 Werkzeug 版本不匹配：<br><code>werkzeug</code> 新版（3.x）<strong>删掉了</strong> <code>url_quote</code>，而旧版 Flask（2.2 及以下）还在用它。</p>
+<hr>
+<h3 id="✅-最快的修复：把-Werkzeug-降级到-2-3-x"><a href="#✅-最快的修复：把-Werkzeug-降级到-2-3-x" class="headerlink" title="✅ 最快的修复：把 Werkzeug 降级到 2.3.x"></a>✅ 最快的修复：把 <strong>Werkzeug 降级</strong>到 2.3.x</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install <span class="string">&quot;werkzeug&lt;3&quot;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="可选但推荐：连带把-Flask-升到最新-2-x（兼容-werkzeug-2-3）"><a href="#可选但推荐：连带把-Flask-升到最新-2-x（兼容-werkzeug-2-3）" class="headerlink" title="可选但推荐：连带把 Flask 升到最新 2.x（兼容 werkzeug 2.3）"></a>可选但推荐：连带把 Flask 升到最新 2.x（兼容 werkzeug 2.3）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install -U <span class="string">&quot;flask&lt;3&quot;</span>   <span class="comment"># 当前 2.3.3 即可</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="一句话总结"><a href="#一句话总结" class="headerlink" title="一句话总结"></a>一句话总结</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install <span class="string">&quot;werkzeug&lt;3&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>再跑你的脚本，报错消失。</p>
+</blockquote>
+<h3 id="typing-extensions-版本太新"><a href="#typing-extensions-版本太新" class="headerlink" title="typing_extensions 版本太新"></a>typing_extensions 版本太新</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> File <span class="string">&quot;/home/ljp/anaconda3/lib/python3.10/site-packages/open3d/visualization/draw_plotly.py&quot;</span>, line <span class="number">12</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    <span class="keyword">from</span> dash <span class="keyword">import</span> html</span><br><span class="line">  File <span class="string">&quot;/home/ljp/anaconda3/lib/python3.10/site-packages/dash/__init__.py&quot;</span>, line <span class="number">46</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    <span class="keyword">from</span> ._hooks <span class="keyword">import</span> hooks  <span class="comment"># noqa: F401,E402</span></span><br><span class="line">  File <span class="string">&quot;/home/ljp/anaconda3/lib/python3.10/site-packages/dash/_hooks.py&quot;</span>, line <span class="number">28</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">_Hook</span>(_tx.<span class="type">Generic</span>[HookDataType]):</span><br><span class="line">AttributeError: module <span class="string">&#x27;typing_extensions&#x27;</span> has no attribute <span class="string">&#x27;Generic&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>typing_extensions 版本太新，旧版 Dash 在它里面找不到 <code>Generic</code> 导致的崩溃。<br>一句话：<strong>把 typing_extensions 降级到 4.7.x 以下</strong>即可。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install <span class="string">&quot;typing_extensions&lt;4.7&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>执行完再跑训练，这条 <code>AttributeError</code> 就会消失。</p>
+</blockquote>
+<blockquote>
+<p>说明刚才的降级<strong>没生效</strong>或者<strong>被别的包又升级回去了</strong>。<br>先确认实际安装的版本：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip show typing_extensions | grep Version</span><br></pre></td></tr></table></figure>
+
+<p>如果 ≥ 4.7，就<strong>强制卸干净再装旧版</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip uninstall -y typing_extensions</span><br><span class="line">pip install <span class="string">&quot;typing_extensions==4.6.3&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>关键点</strong>：  </p>
+<ol>
+<li>一定要<strong>先卸再装</strong>，否则可能残留高版本缓存。  </li>
+<li>装完再验证：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&quot;import typing_extensions,sys; print(typing_extensions.__version__)&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>只要显示 <code>4.6.3</code>（或 &lt;4.7），再跑训练就不会再报 <code>AttributeError: module &#39;typing_extensions&#39; has no attribute &#39;Generic&#39;</code>。</p>
+</blockquote>
+<h3 id="open3d-在-可视化子模块-里-强行-import-dash"><a href="#open3d-在-可视化子模块-里-强行-import-dash" class="headerlink" title="open3d 在 可视化子模块 里 强行 import dash"></a><code>open3d</code> 在 <strong>可视化子模块</strong> 里 <strong>强行 <code>import dash</code></strong></h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">   <span class="keyword">from</span> .draw_plotly <span class="keyword">import</span> draw_plotly</span><br><span class="line">  File <span class="string">&quot;/home/ljp/anaconda3/lib/python3.10/site-packages/open3d/visualization/draw_plotly.py&quot;</span>, line <span class="number">12</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    <span class="keyword">from</span> dash <span class="keyword">import</span> html</span><br><span class="line">  File <span class="string">&quot;/home/ljp/anaconda3/lib/python3.10/site-packages/dash/__init__.py&quot;</span>, line <span class="number">46</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    <span class="keyword">from</span> ._hooks <span class="keyword">import</span> hooks  <span class="comment"># noqa: F401,E402</span></span><br><span class="line">  File <span class="string">&quot;/home/ljp/anaconda3/lib/python3.10/site-packages/dash/_hooks.py&quot;</span>, line <span class="number">28</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">_Hook</span>(_tx.<span class="type">Generic</span>[HookDataType]):</span><br><span class="line">AttributeError: module <span class="string">&#x27;typing_extensions&#x27;</span> has no attribute <span class="string">&#x27;Generic</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>问题根源<br><code>open3d</code> 在 <strong>可视化子模块</strong> 里 <strong>强行 <code>import dash</code></strong>，而你的 Dash 版本仍 <strong>老到去 <code>typing_extensions.Generic</code> 里找别名</strong>，<strong>4.4.0 的 typing_extensions 已没有这个别名</strong>，于是循环报错。</p>
+<hr>
+<h3 id="一次性根治：把-Dash-升到-2-14-（已适配新旧-typing-extensions）"><a href="#一次性根治：把-Dash-升到-2-14-（已适配新旧-typing-extensions）" class="headerlink" title="一次性根治：把 Dash 升到 2.14+（已适配新旧 typing_extensions）"></a>一次性根治：把 Dash 升到 <strong>2.14+</strong>（已适配新旧 typing_extensions）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install -U <span class="string">&quot;dash&gt;=2.14&quot;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&quot;import dash, typing_extensions, sys; print(&#x27;dash:&#x27;, dash.__version__, &#x27;typing_extensions:&#x27;, typing_extensions.__version__)&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>能正常 import 就说明解决。<br>再执行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh train.sh</span><br></pre></td></tr></table></figure>
+
+<p>报错会消失。</p>
+</blockquote>
+<blockquote>
+<p>说明 Dash 还没升上去，或者升级失败又回落了。<br><strong>先强制把 Dash 升到 2.14+</strong>，再确认：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 1. 卸干净旧版</span></span><br><span class="line">pip uninstall -y dash</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 装最新 2.x（已修复 Generic 问题）</span></span><br><span class="line">pip install <span class="string">&quot;dash&gt;=2.14,&lt;3&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 验证</span></span><br><span class="line">python -c <span class="string">&quot;import dash, typing_extensions; print(dash.__version__, typing_extensions.__version__)&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>只要 dash 版本 ≥2.14，就不会再去找 <code>typing_extensions.Generic</code>，报错即消失。</p>
+</blockquote>
+<blockquote>
+<p><code>typing_extensions</code> 4.4.0 本身<strong>没有 <code>__version__</code> 属性</strong>，所以最后一行报错是<strong>正常副作用</strong>，<strong>不代表 Dash 问题仍在</strong>。</p>
+<p>先<strong>直接验证 Dash 能否正常 import</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&quot;import dash; print(&#x27;dash:&#x27;, dash.__version__)&quot;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>如果输出版本号 ≥2.14 → <strong>Dash 已修复</strong>，可以继续跑训练；  </li>
+<li>如果仍抛 <code>AttributeError: module &#39;typing_extensions&#39; has no attribute &#39;Generic&#39;</code> → <strong>Dash 还是旧版</strong>，继续执行：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip uninstall -y dash</span><br><span class="line">pip install <span class="string">&quot;dash==2.17.0&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>再跑一次即可。</p>
+</blockquote>
+<h3 id="你系统自带的-glibc-版本-低于-2-29"><a href="#你系统自带的-glibc-版本-低于-2-29" class="headerlink" title="你系统自带的 glibc 版本 低于 2.29"></a>你系统自带的 <code>glibc</code> 版本 <strong>低于 2.29</strong></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Traceback (most recent call last):</span><br><span class="line">  File &quot;/home/ljp/cudaProject/3DGS-DR/net_viewer_client/net_viewer.py&quot;, line 3, in &lt;module&gt;</span><br><span class="line">    import dearpygui.dearpygui as dpg</span><br><span class="line">  File &quot;/home/ljp/anaconda3/lib/python3.10/site-packages/dearpygui/dearpygui.py&quot;, line 22, in &lt;module&gt;</span><br><span class="line">    import dearpygui._dearpygui as internal_dpg</span><br><span class="line">ImportError: /lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.29&#x27; not found (required by /home/ljp/anaconda3/lib/python3.10/site-packages/dearpygui/_dearpygui.so)怎么回事</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>报错说明：</p>
+<p>你系统自带的 <code>glibc</code> 版本 <strong>低于 2.29</strong>，而当前 <code>dearpygui</code> 轮子是 <strong>用 glibc-2.29 链接的</strong>，所以运行时找不到符号，抛 <code>version &#39;GLIBC_2.29&#39; not found</code>。</p>
+<hr>
+<h3 id="✅-最简、最安全方案（优先降级-dearpygui）"><a href="#✅-最简、最安全方案（优先降级-dearpygui）" class="headerlink" title="✅ 最简、最安全方案（优先降级 dearpygui）"></a>✅ 最简、最安全方案（<strong>优先降级 dearpygui</strong>）</h3><p>官方已确认 <strong>1.7.x 及更早版本</strong> 是用 <strong>glibc 2.27 及以下</strong> 构建的，直接降版即可：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip uninstall -y dearpygui</span><br><span class="line">pip install dearpygui==1.7.1</span><br></pre></td></tr></table></figure>
+
+<p>降完后重新运行客户端：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> net_viewer_client</span><br><span class="line">python net_viewer.py</span><br></pre></td></tr></table></figure>
+
+<p>若不再报错即解决；如仍提示 <code>GLIBC_2.29</code> 则继续降到 <strong>1.6.x</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install dearpygui==1.6</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="⚠️-备选方案（仅当降级失败才考虑）"><a href="#⚠️-备选方案（仅当降级失败才考虑）" class="headerlink" title="⚠️ 备选方案（仅当降级失败才考虑）"></a>⚠️ 备选方案（<strong>仅当降级失败才考虑</strong>）</h3><p>自己编译&#x2F;升级 <strong>glibc-2.29</strong> 风险高，容易把系统命令弄坏；<strong>非必要不推荐</strong>。<br>如确实需要，参考：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 新建隔离目录，编译安装</span></span><br><span class="line">wget http://ftp.gnu.org/gnu/glibc/glibc-2.29.tar.gz</span><br><span class="line">tar -xf glibc-2.29.tar.gz &amp;&amp; <span class="built_in">cd</span> glibc-2.29</span><br><span class="line"><span class="built_in">mkdir</span> build &amp;&amp; <span class="built_in">cd</span> build</span><br><span class="line">../configure --prefix=/usr/local/glibc-2.29 --disable-profile --enable-add-ons</span><br><span class="line">make -j$(<span class="built_in">nproc</span>)</span><br><span class="line"><span class="built_in">sudo</span> make install</span><br><span class="line"></span><br><span class="line"><span class="comment"># 仅对当前会话生效，不影响系统</span></span><br><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=/usr/local/glibc-2.29/lib:<span class="variable">$LD_LIBRARY_PATH</span></span><br><span class="line">python net_viewer.py</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>千万别直接替换 <code>/lib/x86_64-linux-gnu/libm.so.6</code>，否则系统命令会集体失效。</p>
+</blockquote>
+<hr>
+<h3 id="一句话结论"><a href="#一句话结论" class="headerlink" title="一句话结论"></a>一句话结论</h3><p><strong>先降 <code>dearpygui</code> 版本 → 1.7.1（或 1.6）就能直接跑</strong>，10 秒搞定；<strong>别急着升级 glibc</strong>。</p>
+</blockquote>
+<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p>在 <strong>3DGS-DR</strong> 里，“中途结果”&#x3D; 两个东西：</p>
+<ol>
+<li>中间迭代时刻的 <strong>模型参数</strong>（<code>.ply</code> + 优化器状态）  </li>
+<li>对应的 <strong>指标&#x2F;图片</strong>（PSNR、SSIM、LPIPS 等，可选）</li>
+</ol>
+<p>仓库已经自带了 <strong>checkpoint + 中间测试</strong> 机制，只要给对参数即可<strong>自动保存</strong>；无需改代码。</p>
+<hr>
+<h3 id="一、保存中间-模型快照（checkpoint）"><a href="#一、保存中间-模型快照（checkpoint）" class="headerlink" title="一、保存中间 模型快照（checkpoint）"></a>一、保存中间 <strong>模型快照</strong>（checkpoint）</h3><p><code>train.py</code> 预留了专门的参数：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>作用</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--checkpoint_iterations</code></td>
+<td>想在哪几轮保存 <code>.ckpt</code></td>
+<td><code>--checkpoint_iterations 7000 15000 25000</code></td>
+</tr>
+<tr>
+<td><code>--save_iterations</code></td>
+<td>想在哪几轮导出 <code>.ply</code></td>
+<td><code>--save_iterations 7000 15000 25000</code></td>
+</tr>
+</tbody></table>
+<p><strong>用法示例</strong>  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">python train.py -s data/toaster -m output/toaster \</span><br><span class="line">       --save_iterations     7000 15000 25000 \</span><br><span class="line">       --checkpoint_iterations 7000 15000 25000</span><br></pre></td></tr></table></figure>
+
+<p><strong>保存路径</strong>  </p>
+<ul>
+<li><code>.ply</code> 模型 → <code>output/toaster/point_cloud/iteration_7000/</code>  </li>
+<li>完整 checkpoint → <code>output/toaster/chkpnt7000.pth</code><br>（含高斯参数、优化器状态，可<strong>断点续训</strong>）</li>
+</ul>
+<hr>
+<h3 id="二、保存中间-测试图像-指标"><a href="#二、保存中间-测试图像-指标" class="headerlink" title="二、保存中间 测试图像 &#x2F; 指标"></a>二、保存中间 <strong>测试图像 &#x2F; 指标</strong></h3><p>仓库提供了 <code>eval.py</code>，可在<strong>任意迭代</strong>把当前模型拉出来测一遍并落盘。</p>
+<ol>
+<li><p>训练时把要测的迭代写进 <code>--test_iterations</code>  </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python train.py ... --test_iterations 7000 15000 25000</span><br></pre></td></tr></table></figure>
+
+<p>训练到这些轮次会自动跑测试，<strong>只打印指标</strong>，<strong>不存图</strong>。</p>
+</li>
+<li><p>如果想<strong>把图也存下来</strong>，再单跑：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">python eval.py --model_path output/toaster \</span><br><span class="line">               --iteration 7000 \</span><br><span class="line">               --save_images</span><br></pre></td></tr></table></figure>
+
+<p>会在<br><code>output/toaster/test/iteration_7000/</code><br>里生成 <code>0000.png ~ XXXX.png</code> 以及 <code>gt_0000.png</code> 等对照图。</p>
+</li>
+</ol>
+<hr>
+<h3 id="三、断点续训（可选）"><a href="#三、断点续训（可选）" class="headerlink" title="三、断点续训（可选）"></a>三、断点续训（可选）</h3><p>如果训练被中断，用 <strong>start_checkpoint</strong> 继续：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python train.py -s data/toaster -m output/toaster \</span><br><span class="line">       --start_checkpoint output/toaster/chkpnt15000.pth</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="四、一句话总结"><a href="#四、一句话总结" class="headerlink" title="四、一句话总结"></a>四、一句话总结</h3><p><strong>想自动保存中途结果</strong> → 在训练命令里加</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">--save_iterations 7000 15000 25000 \</span><br><span class="line">--checkpoint_iterations 7000 15000 25000 \</span><br><span class="line">--test_iterations 7000 15000 25000</span><br></pre></td></tr></table></figure>
+
+<p><strong>想同时落盘图片</strong> → 训练完再</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python eval.py --model_path output/xxx --iteration YYYY --save_images</span><br></pre></td></tr></table></figure>
+
+<p>全程无需改代码，参数给够即可。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://brinjaul521.github.io">贺腾</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://brinjaul521.github.io/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/">https://brinjaul521.github.io/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://brinjaul521.github.io" target="_blank">贺腾的博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/3DGS/">3DGS</a></div><div class="post-share"><div class="social-share" data-image="/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/pipeline.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2025/09/19/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%8E%9F%E5%88%99/" title="设计模式的原则"><img class="cover" src="/2025/09/19/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%8E%9F%E5%88%99/design.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">设计模式的原则</div></div><div class="info-2"><div class="info-item-1">设计模式的原则设计模式的原则是面向对象设计的指导思想，它们为我们提供了设计高质量、可维护、可扩展软件系统的基本准则。这些原则是设计模式背后的理论基础。 SOLID 原则SOLID 是五个重要设计原则的首字母缩写，由 Robert C. Martin 提出。 1. 单一职责原则 (Single Responsibility Principle - SRP)定义：一个类应该只有一个引起变化的原因。 解释：  每个类应该只负责一个特定的功能或职责 避免创建”万能类”，这样的类难以维护和测试 将不同的职责分离到不同的类中  示例： 1234567891011121314151617181920212223// 违反SRP的示例class Employee &#123;public:    void calculateSalary() &#123; /* 计算工资 */ &#125;    void saveToDatabase() &#123; /* 保存到数据库 */ &#125;    void generateReport() &#123; /* 生成报告 */ &#125;&#1...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/head.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">贺腾</div><div class="author-info-description">我等的不是海边</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">12</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/brinjaul521/"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/brinjaul521/" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:1061391142@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">记录一下学习路线，顺便找个工作</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">3DGS-DR部署及训练教程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.1.</span> <span class="toc-text">项目介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2"><span class="toc-number">1.2.</span> <span class="toc-text">项目部署</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A6%96%E5%85%88%E5%85%8B%E9%9A%86%E4%BB%A3%E7%A0%81%E5%88%B0%E6%9C%AC%E5%9C%B0"><span class="toc-number">1.2.1.</span> <span class="toc-text">首先克隆代码到本地</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD%E9%A1%B9%E7%9B%AE%E4%BE%9D%E8%B5%96%EF%BC%88%E5%BF%85%E9%A1%BB%E6%89%8B%E5%8A%A8%E4%B8%8B%E7%9A%84%EF%BC%89"><span class="toc-number">1.2.2.</span> <span class="toc-text">下载项目依赖（必须手动下的）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD%E6%95%B0%E6%8D%AE%E9%9B%86%EF%BC%88%E7%82%B9%E5%87%BB%E9%93%BE%E6%8E%A5%E4%B8%8B%E8%BD%BD%EF%BC%89"><span class="toc-number">1.2.3.</span> <span class="toc-text">下载数据集（点击链接下载）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%AD%E7%BB%83"><span class="toc-number">1.3.</span> <span class="toc-text">训练</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E5%B9%B6%E8%AE%BE%E7%BD%AE%E8%87%AA%E5%AE%9A%E4%B9%89%E9%80%89%E9%A1%B9"><span class="toc-number">1.3.1.</span> <span class="toc-text">执行命令并设置自定义选项</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%84%E4%BB%B7%E6%8C%87%E6%A0%87"><span class="toc-number">1.4.</span> <span class="toc-text">评价指标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AF%E8%A7%86%E5%8C%96"><span class="toc-number">1.5.</span> <span class="toc-text">可视化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8%E6%AD%A5%E9%AA%A4%EF%BC%9A"><span class="toc-number">1.5.1.</span> <span class="toc-text">启动步骤：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%90%AF%E5%8A%A8%E6%9C%8D%E5%8A%A1%E7%AB%AF%EF%BC%9A"><span class="toc-number">1.5.1.1.</span> <span class="toc-text">1. 启动服务端：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%90%AF%E5%8A%A8%E5%AE%A2%E6%88%B7%E7%AB%AF%EF%BC%9A"><span class="toc-number">1.5.1.2.</span> <span class="toc-text">2. 启动客户端：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9C%9F%E5%AE%9E%E5%9C%BA%E6%99%AF%E6%95%B0%E6%8D%AE%E9%9B%86%EF%BC%9A"><span class="toc-number">1.5.2.</span> <span class="toc-text">自定义真实场景数据集：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%88%91%E5%9C%A8%E9%83%A8%E7%BD%B2%E8%BF%87%E7%A8%8B%E4%B8%AD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%E4%BB%A5%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">1.6.</span> <span class="toc-text">我在部署过程中遇到的问题以及解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%88%91%E6%83%B3%E5%9C%A8clone%E6%97%B6%E5%80%99%E4%BD%BF%E7%94%A8%E4%BB%A3%E7%90%86%E7%9B%B4%E6%8E%A5%E5%B0%86%E4%BB%93%E5%BA%93%E5%8F%8A%E5%AD%90%E6%A8%A1%E5%9D%97%E4%B8%80%E8%B5%B7%E6%8B%89%E4%B8%8B%E6%9D%A5%E4%BD%86%E6%98%AF%E5%A4%B1%E8%B4%A5%E4%BA%86"><span class="toc-number">1.6.1.</span> <span class="toc-text">我想在clone时候使用代理直接将仓库及子模块一起拉下来但是失败了</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%9C%85-%E5%85%88%E8%A7%A3%E5%86%B3-ModuleNotFoundError-No-module-named-%E2%80%98kornia%E2%80%99"><span class="toc-number">1.6.2.</span> <span class="toc-text">✅ 先解决 ModuleNotFoundError: No module named ‘kornia’</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%9C%85-%E5%86%8D%E8%A7%A3%E5%86%B3-train-sh-not-found"><span class="toc-number">1.6.3.</span> <span class="toc-text">✅ 再解决 train.sh: not found</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%A4%E7%A7%8D%E6%94%B9%E6%B3%95%EF%BC%88%E4%BB%BB%E9%80%89%E5%85%B6%E4%B8%80%EF%BC%89%EF%BC%9A"><span class="toc-number">1.6.3.1.</span> <span class="toc-text">两种改法（任选其一）：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%91%A0-%E7%94%A8-dos2unix-%E4%B8%80%E9%94%AE%E8%BD%AC%E6%A0%BC%E5%BC%8F"><span class="toc-number">1.6.3.2.</span> <span class="toc-text">① 用 dos2unix 一键转格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%91%A1-%E6%89%8B%E5%8A%A8%E5%88%A0-r"><span class="toc-number">1.6.3.3.</span> <span class="toc-text">② 手动删 \r</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%9C%85-%E6%80%BB%E7%BB%93%EF%BC%9A%E4%BD%A0%E7%8E%B0%E5%9C%A8%E5%8F%AA%E9%9C%80%E8%A6%81%E4%B8%A4%E6%9D%A1%E5%91%BD%E4%BB%A4"><span class="toc-number">1.6.4.</span> <span class="toc-text">✅ 总结：你现在只需要两条命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%80%81%E9%97%AE%E9%A2%98%EF%BC%8C%E6%96%B0%E7%BC%BA%E5%8C%85%EF%BC%9A"><span class="toc-number">1.6.5.</span> <span class="toc-text">老问题，新缺包：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Flask-%E4%B8%8E-Werkzeug-%E7%89%88%E6%9C%AC%E4%B8%8D%E5%8C%B9%E9%85%8D"><span class="toc-number">1.6.6.</span> <span class="toc-text">Flask 与 Werkzeug 版本不匹配</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%9C%85-%E6%9C%80%E5%BF%AB%E7%9A%84%E4%BF%AE%E5%A4%8D%EF%BC%9A%E6%8A%8A-Werkzeug-%E9%99%8D%E7%BA%A7%E5%88%B0-2-3-x"><span class="toc-number">1.6.7.</span> <span class="toc-text">✅ 最快的修复：把 Werkzeug 降级到 2.3.x</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E9%80%89%E4%BD%86%E6%8E%A8%E8%8D%90%EF%BC%9A%E8%BF%9E%E5%B8%A6%E6%8A%8A-Flask-%E5%8D%87%E5%88%B0%E6%9C%80%E6%96%B0-2-x%EF%BC%88%E5%85%BC%E5%AE%B9-werkzeug-2-3%EF%BC%89"><span class="toc-number">1.6.8.</span> <span class="toc-text">可选但推荐：连带把 Flask 升到最新 2.x（兼容 werkzeug 2.3）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%80%BB%E7%BB%93"><span class="toc-number">1.6.9.</span> <span class="toc-text">一句话总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#typing-extensions-%E7%89%88%E6%9C%AC%E5%A4%AA%E6%96%B0"><span class="toc-number">1.6.10.</span> <span class="toc-text">typing_extensions 版本太新</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#open3d-%E5%9C%A8-%E5%8F%AF%E8%A7%86%E5%8C%96%E5%AD%90%E6%A8%A1%E5%9D%97-%E9%87%8C-%E5%BC%BA%E8%A1%8C-import-dash"><span class="toc-number">1.6.11.</span> <span class="toc-text">open3d 在 可视化子模块 里 强行 import dash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E6%AC%A1%E6%80%A7%E6%A0%B9%E6%B2%BB%EF%BC%9A%E6%8A%8A-Dash-%E5%8D%87%E5%88%B0-2-14-%EF%BC%88%E5%B7%B2%E9%80%82%E9%85%8D%E6%96%B0%E6%97%A7-typing-extensions%EF%BC%89"><span class="toc-number">1.6.12.</span> <span class="toc-text">一次性根治：把 Dash 升到 2.14+（已适配新旧 typing_extensions）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AA%8C%E8%AF%81"><span class="toc-number">1.6.13.</span> <span class="toc-text">验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%A0%E7%B3%BB%E7%BB%9F%E8%87%AA%E5%B8%A6%E7%9A%84-glibc-%E7%89%88%E6%9C%AC-%E4%BD%8E%E4%BA%8E-2-29"><span class="toc-number">1.6.14.</span> <span class="toc-text">你系统自带的 glibc 版本 低于 2.29</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%9C%85-%E6%9C%80%E7%AE%80%E3%80%81%E6%9C%80%E5%AE%89%E5%85%A8%E6%96%B9%E6%A1%88%EF%BC%88%E4%BC%98%E5%85%88%E9%99%8D%E7%BA%A7-dearpygui%EF%BC%89"><span class="toc-number">1.6.15.</span> <span class="toc-text">✅ 最简、最安全方案（优先降级 dearpygui）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E2%9A%A0%EF%B8%8F-%E5%A4%87%E9%80%89%E6%96%B9%E6%A1%88%EF%BC%88%E4%BB%85%E5%BD%93%E9%99%8D%E7%BA%A7%E5%A4%B1%E8%B4%A5%E6%89%8D%E8%80%83%E8%99%91%EF%BC%89"><span class="toc-number">1.6.16.</span> <span class="toc-text">⚠️ 备选方案（仅当降级失败才考虑）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E5%8F%A5%E8%AF%9D%E7%BB%93%E8%AE%BA"><span class="toc-number">1.6.17.</span> <span class="toc-text">一句话结论</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">1.7.</span> <span class="toc-text">注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E4%BF%9D%E5%AD%98%E4%B8%AD%E9%97%B4-%E6%A8%A1%E5%9E%8B%E5%BF%AB%E7%85%A7%EF%BC%88checkpoint%EF%BC%89"><span class="toc-number">1.7.1.</span> <span class="toc-text">一、保存中间 模型快照（checkpoint）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E4%BF%9D%E5%AD%98%E4%B8%AD%E9%97%B4-%E6%B5%8B%E8%AF%95%E5%9B%BE%E5%83%8F-%E6%8C%87%E6%A0%87"><span class="toc-number">1.7.2.</span> <span class="toc-text">二、保存中间 测试图像 &#x2F; 指标</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%96%AD%E7%82%B9%E7%BB%AD%E8%AE%AD%EF%BC%88%E5%8F%AF%E9%80%89%EF%BC%89"><span class="toc-number">1.7.3.</span> <span class="toc-text">三、断点续训（可选）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%80%BB%E7%BB%93"><span class="toc-number">1.7.4.</span> <span class="toc-text">四、一句话总结</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/" title="3DGS-DR部署及训练教程"><img src="/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/pipeline.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="3DGS-DR部署及训练教程"/></a><div class="content"><a class="title" href="/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/" title="3DGS-DR部署及训练教程">3DGS-DR部署及训练教程</a><time datetime="2025-09-19T12:29:28.000Z" title="发表于 2025-09-19 20:29:28">2025-09-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/19/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%8E%9F%E5%88%99/" title="设计模式的原则"><img src="/2025/09/19/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%8E%9F%E5%88%99/design.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="设计模式的原则"/></a><div class="content"><a class="title" href="/2025/09/19/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%8E%9F%E5%88%99/" title="设计模式的原则">设计模式的原则</a><time datetime="2025-09-19T11:05:22.000Z" title="发表于 2025-09-19 19:05:22">2025-09-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/19/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" title="简单工厂模式"><img src="/2025/09/19/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/asl.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="简单工厂模式"/></a><div class="content"><a class="title" href="/2025/09/19/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" title="简单工厂模式">简单工厂模式</a><time datetime="2025-09-19T06:17:45.000Z" title="发表于 2025-09-19 14:17:45">2025-09-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/18/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/" title="策略模式"><img src="/2025/09/18/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/strategy.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="策略模式"/></a><div class="content"><a class="title" href="/2025/09/18/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/" title="策略模式">策略模式</a><time datetime="2025-09-18T13:01:22.000Z" title="发表于 2025-09-18 21:01:22">2025-09-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/18/%E5%81%8F%E6%88%91%E6%9D%A5%E6%97%B6%E4%B8%8D%E9%80%A2%E6%98%A5%EF%BC%8C%E5%81%8F%E6%88%91%E8%B5%B0%E6%97%B6%E6%98%A5%E5%8F%88%E6%9D%A5/" title="偏我来时不逢春，偏我走时春又来"><img src="/2025/09/18/%E5%81%8F%E6%88%91%E6%9D%A5%E6%97%B6%E4%B8%8D%E9%80%A2%E6%98%A5%EF%BC%8C%E5%81%8F%E6%88%91%E8%B5%B0%E6%97%B6%E6%98%A5%E5%8F%88%E6%9D%A5/street.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="偏我来时不逢春，偏我走时春又来"/></a><div class="content"><a class="title" href="/2025/09/18/%E5%81%8F%E6%88%91%E6%9D%A5%E6%97%B6%E4%B8%8D%E9%80%A2%E6%98%A5%EF%BC%8C%E5%81%8F%E6%88%91%E8%B5%B0%E6%97%B6%E6%98%A5%E5%8F%88%E6%9D%A5/" title="偏我来时不逢春，偏我走时春又来">偏我来时不逢春，偏我走时春又来</a><time datetime="2025-09-18T11:56:47.000Z" title="发表于 2025-09-18 19:56:47">2025-09-18</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By 贺腾</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script src="/js/bg-player.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
