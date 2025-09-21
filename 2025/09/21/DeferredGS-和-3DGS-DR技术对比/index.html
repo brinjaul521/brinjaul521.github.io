@@ -1,0 +1,991 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>DeferredGS 和 3DGS-DR技术对比 | 贺腾的博客</title><meta name="author" content="贺腾"><meta name="copyright" content="贺腾"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="太苦了，中期答辩提前，秋招无可奈何">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DeferredGS 和 3DGS-DR技术对比">
+<meta property="og:url" content="https://brinjaul521.github.io/2025/09/21/DeferredGS-%E5%92%8C-3DGS-DR%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94/index.html">
+<meta property="og:site_name" content="贺腾的博客">
+<meta property="og:description" content="太苦了，中期答辩提前，秋招无可奈何">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://brinjaul521.github.io/2025/09/21/DeferredGS-%E5%92%8C-3DGS-DR%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94/boy.png">
+<meta property="article:published_time" content="2025-09-21T12:54:26.000Z">
+<meta property="article:modified_time" content="2025-09-21T12:57:03.962Z">
+<meta property="article:author" content="贺腾">
+<meta property="article:tag" content="3DGS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://brinjaul521.github.io/2025/09/21/DeferredGS-%E5%92%8C-3DGS-DR%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94/boy.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "DeferredGS 和 3DGS-DR技术对比",
+  "url": "https://brinjaul521.github.io/2025/09/21/DeferredGS-%E5%92%8C-3DGS-DR%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94/",
+  "image": "https://brinjaul521.github.io/2025/09/21/DeferredGS-%E5%92%8C-3DGS-DR%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94/boy.png",
+  "datePublished": "2025-09-21T12:54:26.000Z",
+  "dateModified": "2025-09-21T12:57:03.962Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "贺腾",
+      "url": "https://brinjaul521.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/head.jpg"><link rel="canonical" href="https://brinjaul521.github.io/2025/09/21/DeferredGS-%E5%92%8C-3DGS-DR%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'DeferredGS 和 3DGS-DR技术对比',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta property="og:type" content="article">
+<meta property="og:title" content="{{ title | default config.title }}">
+<meta property="og:image" content="{{ url | append cover | default config.url | append '/img/default-cover.jpg' }}">
+<meta property="og:description" content="{{ description | default excerpt | default config.description }}">
+<meta property="og:url" content="{{ url }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(/img/background.png);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/head.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">14</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-comments-o"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/2025/09/21/DeferredGS-%E5%92%8C-3DGS-DR%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94/boy.png);"><nav id="nav"><span id="blog-info"><a href="/" title="贺腾的博客"><img class="site-icon" src="/img/head.jpg" alt="Logo"><span class="site-name">贺腾的博客</span></a><a class="nav-page-title" href="/"><span class="site-name">DeferredGS 和 3DGS-DR技术对比</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-graduation-cap"></i><span> 博文</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></li></ul></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/shuoshuo/"><i class="fa-fw fa fa-comments-o"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/links/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/comment/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于笔者</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">DeferredGS 和 3DGS-DR技术对比</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-09-21T12:54:26.000Z" title="发表于 2025-09-21 20:54:26">2025-09-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-09-21T12:57:03.962Z" title="更新于 2025-09-21 20:57:03">2025-09-21</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="DeferredGS-和-3DGS-DR技术对比"><a href="#DeferredGS-和-3DGS-DR技术对比" class="headerlink" title="DeferredGS 和 3DGS-DR技术对比"></a>DeferredGS 和 3DGS-DR技术对比</h1><h2 id="对比简介"><a href="#对比简介" class="headerlink" title="对比简介"></a>对比简介</h2><p>这两篇论文（DeferredGS 和 3DGS-DR）都致力于将<strong>延迟渲染（Deferred Shading）</strong> 技术引入 <strong>3D Gaussian Splatting (3DGS)</strong> 框架，以解决传统 3DGS 在<strong>处理高光反射（Specular Reflection）</strong> 时的核心问题。然而，它们在<strong>目标、技术实现、核心贡献和应用场景</strong>上存在显著差异。</p>
+<p>以下是对两篇论文相同点与不同点的详细分析：</p>
+<hr>
+<h3 id="相同之处-Key-Similarities"><a href="#相同之处-Key-Similarities" class="headerlink" title="相同之处 (Key Similarities)"></a><strong>相同之处 (Key Similarities)</strong></h3><ol>
+<li><p><strong>核心技术：延迟渲染 (Deferred Shading):</strong></p>
+<ul>
+<li>两篇论文都摒弃了 3DGS 原始的<em>前向着色 (Forward Shading)</em> 方式（即在每个 Gaussian 上计算颜色然后混合）。</li>
+<li>都采用了<strong>两阶段渲染管线</strong>：<ul>
+<li><strong>阶段 1 (Gaussian Splatting Pass):</strong> 将 Gaussian 的属性（位置、法线、材质参数等）光栅化到屏幕空间的缓冲（G-Buffer）中。</li>
+<li><strong>阶段 2 (Shading Pass):</strong> 在<strong>像素级别</strong>，利用 G-Buffer 中的信息（法线、材质等）和光照信息（环境贴图）计算最终的着色（包括漫反射和高光反射）。</li>
+</ul>
+</li>
+<li><strong>核心优势相同：</strong> 这种方法解决了前向着色在高光反射时面临的<strong>混合伪影（Blending Artifacts）</strong> 问题（当光照改变时，在 Gaussian 边界处出现不连续或错误混合）。像素级着色确保了光照计算的连续性和准确性。</li>
+</ul>
+</li>
+<li><p><strong>目标问题：提升反射质量 (Improving Reflection Quality):</strong></p>
+<ul>
+<li>两篇论文都明确指出，原始的 3DGS 使用低阶球谐函数 (SH) 难以准确表达高频的镜面反射效果，容易导致模糊或错误的反射。</li>
+<li>都认为环境贴图 (Environment Map) 是建模高光反射的有效方式，但需要更精确的几何（法线）支持。</li>
+</ul>
+</li>
+<li><p><strong>基础表示：3D Gaussian Splatting:</strong></p>
+<ul>
+<li>都以 Kerbl 等人提出的 3D Gaussian Splatting 作为场景表示的基础，利用其高效的光栅化和实时渲染能力。</li>
+</ul>
+</li>
+<li><p><strong>利用法线 (Utilizing Normals):</strong></p>
+<ul>
+<li>都引入了<strong>法线</strong>作为 Gaussian 的一个关键属性，用于计算反射方向。在原始 3DGS 中，法线信息是隐含在位置和协方差矩阵中，并不直接可用或精确。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="不同之处-Key-Differences"><a href="#不同之处-Key-Differences" class="headerlink" title="不同之处 (Key Differences)"></a><strong>不同之处 (Key Differences)</strong></h3><table>
+<thead>
+<tr>
+<th align="left">特征</th>
+<th align="left">DeferredGS (Wu et al.)</th>
+<th align="left">3D Gaussian Splatting with Deferred Reflection (Ye et al.)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>核心目标</strong></td>
+<td align="left"><strong>场景解耦与编辑 (Decoupling &amp; Editing)</strong></td>
+<td align="left"><strong>高质量反射合成 (High-Quality Reflection Synthesis)</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>主要贡献</strong></td>
+<td align="left">1.  <strong>几何-材质-光照解耦</strong> (SDF蒸馏法线+迪士尼材质参数+环境光)。<br>2. <strong>支持编辑</strong> (重光照、几何变形、纹理编辑)。<br>3. 应用延迟渲染解决重光照伪影。</td>
+<td align="left">1.  <strong>高效的延迟反射管线</strong>。<br>2. <strong>法线传播 (Normal Propagation)</strong> 训练策略。<br>3. 在保持原版速度下显著提升反射质量。</td>
+</tr>
+<tr>
+<td align="left"><strong>法线来源与优化</strong></td>
+<td align="left"><strong>蒸馏自联合训练的 SDF (Instant-RefNeuS)</strong>。强制光栅化法线与 SDF 法线一致 (<code>L_nd</code>)。目标是获得<strong>物理上准确的表面法线</strong>用于分解。</td>
+<td align="left"><strong>直接使用 Gaussian 的最短轴</strong> 作为法线近似。通过<strong>法线传播</strong>策略（周期性膨胀高反射强度 Gaussian 的尺度）让“正确”的法线<strong>逐渐扩散</strong>到邻近 Gaussian。目标是优化<strong>渲染反射方向</strong>。</td>
+</tr>
+<tr>
+<td align="left"><strong>材质模型</strong></td>
+<td align="left"><strong>完整的物理材质 (Disney BRDF)</strong>：为每个 Gaussian 显式优化<strong>漫反射反照率 (<code>kd</code>)、粗糙度 (<code>r</code>)、高光反照率 (<code>ks</code>)</strong>。目标是实现材质编辑和真实重光照。</td>
+<td align="left"><strong>简化模型</strong>：每个 Gaussian 有一个<strong>反射强度标量 (<code>r_i</code>)</strong>。<strong>基础颜色 (<code>C(v)</code>) 仍由 SH 表示</strong>（包含漫反射和粗糙反射）。反射计算 &#x3D; <code>(1-R)*C + R * EnvMap</code>。目标是高效渲染高质量镜面反射，<strong>不追求完整材质分解</strong>。</td>
+</tr>
+<tr>
+<td align="left"><strong>光照模型</strong></td>
+<td align="left"><strong>可学习的环境贴图</strong>，用于基于物理的着色计算。</td>
+<td align="left"><strong>可学习的环境贴图</strong>，用于镜面反射查询。</td>
+</tr>
+<tr>
+<td align="left"><strong>训练复杂性</strong></td>
+<td align="left"><strong>高</strong>：需要联合训练一个复杂的 SDF 网络 (<code>Instant-RefNeuS</code>) 来指导 Gaussian 法线和几何。损失函数包含多个正则项 (<code>L_nerf</code>, <code>L_nd</code>, <code>L_mask</code>, <code>L_TV</code> 等)。训练时间较长 (3-4 小时)。</td>
+<td align="left"><strong>相对低</strong>：核心训练策略是<strong>法线传播</strong>和<strong>颜色破坏 (Color Sabotage)</strong>。不需要额外的大型神经网络。训练时间接近原版 3DGS (16-47 分钟)。</td>
+</tr>
+<tr>
+<td align="left"><strong>支持的编辑</strong></td>
+<td align="left"><strong>是</strong>：重光照、基于网格代理的几何编辑、多视角一致的纹理编辑。</td>
+<td align="left"><strong>否</strong>：论文明确说明其目标不是提供完整的逆渲染或重光照能力，专注于视图合成中的反射质量。</td>
+</tr>
+<tr>
+<td align="left"><strong>性能 (Rendering)</strong></td>
+<td align="left">~30 FPS @ 800x800 (NVIDIA 3090)。比原版慢，因涉及更复杂的 G-Buffer 和着色计算。</td>
+<td align="left">~251 FPS (合成场景) &#x2F; ~80 FPS (真实场景)。<strong>几乎等同于原版 3DGS 的速度</strong>，延迟着色开销极小。</td>
+</tr>
+<tr>
+<td align="left"><strong>主要优势场景</strong></td>
+<td align="left">需要<strong>场景分解 (Geometry, Material, Lighting)</strong> 和 <strong>编辑 (Relighting, Geometry&#x2F;Texture Editing)</strong> 的应用。</td>
+<td align="left">需要<strong>实时渲染</strong>且包含<strong>高质量镜面反射</strong>的<strong>新视图合成</strong>应用。对编辑无需求。</td>
+</tr>
+<tr>
+<td align="left"><strong>反射处理范围</strong></td>
+<td align="left">旨在处理更广泛的反射（基于物理的 BRDF），但受限于分解的准确性（如阴影问题）。</td>
+<td align="left">专注于处理<strong>清晰的镜面反射</strong>。明确表示粗糙反射、各向异性等留给基础 SH 颜色。</td>
+</tr>
+<tr>
+<td align="left"><strong>代表性图表</strong></td>
+<td align="left">图 5 (重光照对比)，图 8 (前向 vs 延迟着色伪影)，图 10 (阴影限制)</td>
+<td align="left">图 1, 8, 9 (反射质量对比)，图 3 (法线传播过程)，图 11 (法线对比)，图 12 (环境贴图对比)</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="总结-Conclusion"><a href="#总结-Conclusion" class="headerlink" title="总结 (Conclusion)"></a><strong>总结 (Conclusion)</strong></h3><ul>
+<li><strong>共同根基：</strong> 两篇论文都认识到了前向着色在 3DGS 处理反射时的根本缺陷（混合伪影），并都提出了基于<strong>延迟渲染</strong>的解决方案，在<strong>像素级别</strong>计算光照（特别是高光反射），从而显著提升了反射渲染的质量和稳定性。</li>
+<li><strong>核心分歧：</strong><ul>
+<li><strong>DeferredGS (Wu et al.):</strong> 目标是构建一个<strong>可解耦、可编辑</strong>的 Gaussian 表示。它通过引入<strong>SDF 蒸馏</strong>获得精确法线，定义<strong>完整物理材质参数</strong>，并使用延迟渲染实现<strong>真实的重光照</strong>和解决伪影。它是一个更<strong>通用但更重</strong>的逆渲染&#x2F;编辑框架。</li>
+<li><strong>3DGS-DR (Ye et al.):</strong> 目标是<strong>高效地渲染出高质量的镜面反射</strong>，<strong>保持原版 3DGS 的实时性能</strong>。它采用<strong>极简的反射模型</strong>（反射强度标量 + 最短轴法线），提出<strong>巧妙的法线传播训练策略</strong>，利用延迟渲染的梯度特性实现法线优化。它是一个<strong>轻量级、高性能</strong>的反射渲染优化方案，<strong>不追求解耦或编辑</strong>。</li>
+</ul>
+</li>
+</ul>
+<p><strong>简单来说：</strong></p>
+<ul>
+<li>如果你想在 3DGS 基础上做<strong>场景分解和编辑（改光照、改模型、改纹理）</strong>，<strong>DeferredGS</strong> 提供了更完整的解决方案和表示。</li>
+<li>如果你主要追求在 3DGS 的<strong>实时速度下渲染出更清晰、更准确的高光反射</strong>（如镜子、光滑金属），而对编辑没有需求，<strong>3DGS-DR</strong> 是更高效、性能损失更小的选择。其法线传播策略是其独特且关键的创新。</li>
+</ul>
+<p>两篇论文都是将成熟的图形学技术（延迟渲染）与新兴的 3D 表示（Gaussian Splatting）相结合的成功范例，分别解决了不同侧重点的问题，推动了该领域的发展。</p>
+<h2 id="为什么不使用前向着色而是使用延迟着色"><a href="#为什么不使用前向着色而是使用延迟着色" class="headerlink" title="为什么不使用前向着色而是使用延迟着色"></a>为什么不使用前向着色而是使用延迟着色</h2><p>两篇论文摒弃3DGS原始<strong>前向着色（Forward Shading）</strong> 的核心原因相同，但具体问题表现和解决目标略有差异。以下是详细解释和渲染管线示意图：</p>
+<hr>
+<h3 id="为什么摒弃前向着色？共同的核心问题"><a href="#为什么摒弃前向着色？共同的核心问题" class="headerlink" title="为什么摒弃前向着色？共同的核心问题"></a><strong>为什么摒弃前向着色？共同的核心问题</strong></h3><p>原始3DGS的前向着色流程：</p>
+<ol>
+<li><strong>逐Gaussian计算颜色</strong>：对每个3D Gaussian，根据其位置、球谐系数（SH）和视角方向，计算<strong>最终颜色</strong>（包含材质和光照）。</li>
+<li><strong>混合颜色</strong>：将这些预先着色的Gaussian按深度排序，通过Alpha混合公式合成最终像素颜色：<br><code>C_final = ∑ (color_i * opacity_i * ∏(1 - opacity_j))</code> （j &lt; i）</li>
+</ol>
+<p><strong>致命缺陷：光照与几何的耦合导致混合伪影（Blending Artifacts）</strong></p>
+<ul>
+<li><strong>问题本质：</strong> 每个Gaussian的<code>color_i</code> <strong>烘焙了当前光照信息</strong>。其几何属性（位置、协方差、不透明度<code>opacity_i</code>）在训练过程中被优化到<strong>使这些预先着色的颜色混合后能匹配训练图像的像素颜色</strong>。</li>
+<li><strong>后果（光照变化时）：</strong> 当光照改变（如重光照）：<ul>
+<li>每个Gaussian的<code>color_i</code>需要重新计算（使用新光照）。</li>
+<li>但几何属性（<code>opacity_i</code>等）<strong>没有改变</strong>，它们是在旧光照下优化的。</li>
+<li>这些在旧光照下优化的几何属性（尤其是<code>opacity_i</code>和协方差决定的混合权重）<strong>无法保证在新光照下混合重新着色的<code>color_i</code>时能产生正确的结果</strong>。</li>
+</ul>
+</li>
+<li><strong>表现：</strong> 在Gaussian边界处（尤其是高光区域）出现<strong>不连续、斑点状、或颜色突变的伪影</strong>，看起来像一个个“彩色斑点”未被正确融合。光照变化越大，伪影越严重。</li>
+</ul>
+<blockquote>
+<p>✅ <strong>关键结论：前向着色将光照计算（高频、易变）和几何混合（低频、相对稳定）在同一个优化目标（最终像素颜色）下强耦合，导致光照变化时几何混合权重失效。</strong></p>
+</blockquote>
+<hr>
+<h3 id="两篇论文的解决方案：延迟渲染（Deferred-Shading）"><a href="#两篇论文的解决方案：延迟渲染（Deferred-Shading）" class="headerlink" title="两篇论文的解决方案：延迟渲染（Deferred Shading）"></a><strong>两篇论文的解决方案：延迟渲染（Deferred Shading）</strong></h3><p><strong>核心思想：解耦光照计算与几何混合</strong></p>
+<ol>
+<li><strong>阶段1：光栅化几何&#x2F;材质属性到G-Buffer</strong>：只关注<strong>是什么（What）</strong> - 位置、法线、材质参数等<strong>与光照无关</strong>的属性。</li>
+<li><strong>阶段2：像素级着色</strong>：基于G-Buffer信息<strong>独立计算光照（How）</strong>。光照可以自由改变，只需重新运行阶段2。</li>
+</ol>
+<p><strong>完美规避前向问题：</strong></p>
+<ul>
+<li>几何混合权重（由<code>opacity_i</code>和协方差决定）<strong>只负责将材质&#x2F;几何属性正确混合到G-Buffer</strong>。这些属性<strong>本身与光照无关</strong>。</li>
+<li>着色计算<strong>完全在像素级进行</strong>，使用G-Buffer中<strong>连续的</strong>属性值（如平滑插值的法线），<strong>不受底层离散Gaussian分布影响</strong>。</li>
+<li><strong>改变光照只需改变阶段2</strong>，阶段1的G-Buffer完全不变。几何混合权重始终有效。</li>
+</ul>
+<hr>
+<h3 id="两篇论文的延迟渲染管线详解"><a href="#两篇论文的延迟渲染管线详解" class="headerlink" title="两篇论文的延迟渲染管线详解"></a><strong>两篇论文的延迟渲染管线详解</strong></h3><h4 id="1-3D-Gaussian-Splatting-with-Deferred-Reflection-Ye-et-al"><a href="#1-3D-Gaussian-Splatting-with-Deferred-Reflection-Ye-et-al" class="headerlink" title="1. 3D Gaussian Splatting with Deferred Reflection (Ye et al.)"></a><strong>1. 3D Gaussian Splatting with Deferred Reflection (Ye et al.)</strong></h4><p><strong>目标：高效渲染高质量镜面反射，保持实时性能。</strong><br><strong>管线示意图：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">+---------------------+       +-----------------------+</span><br><span class="line">|                     |       |                       |</span><br><span class="line">|   Gaussian Splatting Pass   |       |    Deferred Reflection Pass    |</span><br><span class="line">|                     |       |                       |</span><br><span class="line">| - Rasterize:        |       | - For each pixel:      |</span><br><span class="line">|   1. Base Color (C) | ===&gt;  |   1. Compute Refl. Dir|</span><br><span class="line">|   2. Normal (N)     |       |       (using N)        |</span><br><span class="line">|   3. Refl. Strength (R)|    |   2. Query EnvMap (E) |</span><br><span class="line">|                     |       |   3. Final Color =     |</span><br><span class="line">|                     |       |      (1 - R) * C +     |</span><br><span class="line">|                     |       |      R * E(refl_dir)   |</span><br><span class="line">+---------------------+       +-----------------------+</span><br><span class="line">          ^                             ^</span><br><span class="line">          |                             |</span><br><span class="line">       Gaussian Attributes           Environment Map</span><br><span class="line">      (Pos, Cov, SH, α, r_i)          (Learned)</span><br><span class="line">          ^</span><br><span class="line">          |</span><br><span class="line">      Training Data (Images)</span><br><span class="line">      Loss: L1 + D-SSIM on Final Color</span><br><span class="line">      Key Training Trick: Normal Propagation</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>阶段1 (Gaussian Splatting Pass):</strong><ul>
+<li>输入：3D Gaussians (位置、协方差、SH系数<code>c_i(v)</code>、不透明度<code>α_i</code>、<strong>反射强度标量<code>r_i</code></strong>)。</li>
+<li>光栅化输出3个<strong>Screen-Space Buffers</strong>：<ul>
+<li><code>Base Color (C)</code>：由SH计算的基础颜色（包含漫反射和粗糙反射）。</li>
+<li><code>Normal (N)</code>：由Gaussian<strong>最短轴</strong>定义并混合得到的像素法线。</li>
+<li><code>Reflection Strength (R)</code>：由<code>r_i</code>混合得到的标量（0&#x3D;无反射，1&#x3D;全反射）。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>阶段2 (Deferred Reflection Pass):</strong><ul>
+<li>输入：阶段1生成的<code>C</code>, <code>N</code>, <code>R</code> Buffer + <strong>可学习的环境贴图 <code>E</code></strong>。</li>
+<li>对<strong>每个像素</strong>独立计算：<ol>
+<li>使用<code>N</code>计算<strong>反射方向</strong> <code>refl_dir</code>。</li>
+<li>用<code>refl_dir</code>查询环境贴图<code>E</code>，得到反射颜色 <code>E(refl_dir)</code>。</li>
+<li>最终像素颜色 &#x3D; <code>(1 - R) * C + R * E(refl_dir)</code>。</li>
+</ol>
+</li>
+<li><strong>关键：</strong> 镜面反射 (<code>R * E(refl_dir)</code>) 完全在像素级计算。<code>C</code>和<code>R</code>是混合好的中间结果，与光照无关。</li>
+</ul>
+</li>
+<li><strong>优势 (针对其目标)：</strong><ul>
+<li><strong>高效：</strong> 着色计算简单（一个反射方向查询+线性混合），G-Buffer小（3个Buffer）。保持了接近原版3DGS的实时性能。</li>
+<li><strong>解决反射伪影：</strong> 反射计算在像素级进行，避免了Gaussian边界处反射颜色的不连续混合。</li>
+<li><strong>训练稳定（法线传播）：</strong> 利用<code>R</code>值大的Gaussian法线相对准确的特点，通过周期性“膨胀”这些Gaussian，让它们的法线影响邻近Gaussian的法线优化，逐步传播正确法线。</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-DeferredGS-Wu-et-al"><a href="#2-DeferredGS-Wu-et-al" class="headerlink" title="2. DeferredGS (Wu et al.)"></a><strong>2. DeferredGS (Wu et al.)</strong></h4><p><strong>目标：实现场景（几何、材质、光照）解耦，支持编辑（重光照、几何变形、纹理编辑）。</strong><br><strong>管线示意图：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">+---------------------+       +-----------------------+</span><br><span class="line">|                     |       |                       |</span><br><span class="line">|   Gaussian Splatting Pass   |       | Physically Based Deferred     |</span><br><span class="line">|                     |       |          Shading Pass                |</span><br><span class="line">| - Rasterize:        | ===&gt;  | - For each pixel      |</span><br><span class="line">|   1. Position (P)   |       |   (with Alpha &gt; 0.5): |</span><br><span class="line">|   2. Normal (N)     |       |   1. Compute Shading: |</span><br><span class="line">|   3. Diffuse Albedo (kd)|   |      - c_diff = ...   |</span><br><span class="line">|   4. Roughness (r)  |       |      - c_spec = ...   |</span><br><span class="line">|   5. Specular Albedo (ks)|  |   2. c_final = c_diff + c_spec |</span><br><span class="line">|   6. Opacity (α)    |       |                       |</span><br><span class="line">+---------------------+       +-----------------------+</span><br><span class="line">          ^                             ^</span><br><span class="line">          |                             |</span><br><span class="line">       Gaussian Attributes           Environment Map</span><br><span class="line">(Pos, Cov, α, kd, r, ks, **N**)    (6x512x512 HDR CubeMap)</span><br><span class="line">          ^                             ^</span><br><span class="line">          |                             |</span><br><span class="line">      Training Data (Images)        BRDF Lookup Tables</span><br><span class="line">      Loss: L_nerf + λ_nd L_nd + ...    (Precomputed)</span><br><span class="line">      Key Module: Normal Distillation (from SDF)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>阶段1 (Gaussian Splatting Pass):</strong><ul>
+<li>输入：3D Gaussians (位置、协方差、不透明度<code>α_i</code>、<strong>材质参数<code>kd_i, r_i, ks_i</code></strong>、<strong>法线<code>n_i</code></strong>)。</li>
+<li>光栅化输出一个<strong>完整的G-Buffer</strong>：<ul>
+<li><code>Position (P)</code></li>
+<li><code>Normal (N)</code>：由<code>n_i</code>混合得到的像素法线。</li>
+<li><code>Diffuse Albedo (kd)</code>：漫反射反照率（纯颜色，无光照）。</li>
+<li><code>Roughness (r)</code>：表面粗糙度。</li>
+<li><code>Specular Albedo (ks)</code>：高光反照率。</li>
+<li><code>Opacity (α)</code>：不透明度。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>阶段2 (Physically Based Deferred Shading Pass):</strong><ul>
+<li>输入：阶段1生成的完整G-Buffer + <strong>可学习的高分辨率HDR环境贴图</strong>。</li>
+<li>对<strong>每个满足<code>α &gt; 0.5</code>的像素</strong>（近似表面像素）独立计算<strong>基于物理的着色 (PBR)</strong>：<ol>
+<li><strong>漫反射项 (<code>c_diff</code>)</strong>：基于<code>kd</code>, <code>N</code>和环境贴图漫反射部分（预积分&#x2F;预过滤）。</li>
+<li><strong>镜面反射项 (<code>c_spec</code>)</strong>：基于<code>ks</code>, <code>r</code>, <code>N</code>，视角方向和环境贴图镜面部分（使用Split-Sum近似，依赖预过滤Mipmap和BRDF LUT）。</li>
+<li><strong>最终像素颜色 (<code>c_final = c_diff + c_spec</code>)</strong>。</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><strong>优势 (针对其目标)：</strong><ul>
+<li><strong>彻底解耦：</strong> G-Buffer存储的是<strong>纯几何和材质属性</strong> (<code>P, N, kd, r, ks</code>)，完全不依赖光照。光照计算 (<code>c_diff, c_spec</code>) 100%在像素级进行。</li>
+<li><strong>支持无损重光照：</strong> 只需替换环境贴图并重新运行阶段2。几何&#x2F;材质G-Buffer不变，<strong>完全规避前向着色的混合伪影</strong>。</li>
+<li><strong>支持材质&#x2F;几何编辑：</strong> 解耦的<code>kd, r, ks, N, P</code>可直接编辑。</li>
+<li><strong>高质量法线（SDF蒸馏）：</strong> 通过联合训练SDF网络并强制光栅化法线<code>C_n</code>接近SDF法线<code>C’_n</code> (<code>L_nd</code>损失)，获得比直接从Gaussian几何推导更准确、更平滑的表面法线，为物理着色和解耦提供坚实基础。</li>
+</ul>
+</li>
+<li><strong>代价：</strong> G-Buffer更大更复杂，PBR着色计算比简单的反射查询昂贵得多，渲染帧率低于3DGS-DR和原始3DGS。</li>
+</ul>
+<hr>
+<h3 id="总结：摒弃前向-选择延迟的原因对比表"><a href="#总结：摒弃前向-选择延迟的原因对比表" class="headerlink" title="总结：摒弃前向 &amp; 选择延迟的原因对比表"></a><strong>总结：摒弃前向 &amp; 选择延迟的原因对比表</strong></h3><table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">前向着色 (Original 3DGS)</th>
+<th align="left">延迟着色 (3DGS-DR &amp; DeferredGS)</th>
+<th align="left">3DGS-DR 的侧重点</th>
+<th align="left">DeferredGS 的侧重点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>光照计算位置</strong></td>
+<td align="left">在 <strong>每个 Gaussian</strong> 上</td>
+<td align="left">在 <strong>每个像素</strong> 上</td>
+<td align="left">高效像素着色 (EnvMap查询)</td>
+<td align="left">物理精确像素着色 (PBR)</td>
+</tr>
+<tr>
+<td align="left"><strong>几何&#x2F;材质属性存储</strong></td>
+<td align="left">无显式存储，烘焙在<code>color_i</code>中</td>
+<td align="left">存储在 <strong>G-Buffer</strong> (<code>N</code>, <code>C</code>&#x2F;<code>R</code> 或 <code>kd</code>, <code>r</code>, <code>ks</code>, <code>N</code>, <code>P</code>)</td>
+<td align="left">最小化Buffer (C, N, R)</td>
+<td align="left">完整G-Buffer (P, N, kd, r, ks, α)</td>
+</tr>
+<tr>
+<td align="left"><strong>核心问题</strong></td>
+<td align="left">光照变化导致<strong>混合伪影</strong> (几何权重失效)</td>
+<td align="left"><strong>天然规避混合伪影</strong> (几何权重只混合属性，着色独立计算)</td>
+<td align="left">解决反射区域的伪影</td>
+<td align="left">解决所有重光照下的伪影</td>
+</tr>
+<tr>
+<td align="left"><strong>光照改变工作流</strong></td>
+<td align="left">需重新计算<strong>所有</strong> Gaussian <code>color_i</code> <strong>并混合</strong></td>
+<td align="left">只需 <strong>重新运行阶段2 (着色Pass)</strong>，G-Buffer不变</td>
+<td align="left">极快 (反射查询简单)</td>
+<td align="left">较快 (PBR计算较重，但远少于重训几何)</td>
+</tr>
+<tr>
+<td align="left"><strong>解耦能力</strong></td>
+<td align="left">无解耦 (光照、材质、几何高度耦合)</td>
+<td align="left"><strong>强解耦</strong> (G-Buffer&#x3D;几何&#x2F;材质， 着色&#x3D;光照)</td>
+<td align="left">部分解耦 (基础色C 仍含光照，反射R独立)</td>
+<td align="left"><strong>完全解耦</strong> (kd, r, ks, N 是纯材质&#x2F;几何)</td>
+</tr>
+<tr>
+<td align="left"><strong>主要优势</strong></td>
+<td align="left">实现简单</td>
+<td align="left">光照鲁棒性高，无边界伪影，支持光照编辑</td>
+<td align="left"><strong>保持实时性能 + 高质量反射</strong></td>
+<td align="left"><strong>支持场景解耦与全面编辑 (重光照&#x2F;几何&#x2F;纹理)</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>主要代价</strong></td>
+<td align="left">无法编辑光照，光照变化产生伪影</td>
+<td align="left">需要生成G-Buffer，着色计算可能更重</td>
+<td align="left">反射模型较简化</td>
+<td align="left">训练更复杂，渲染开销更大</td>
+</tr>
+</tbody></table>
+<hr>
+<p><strong>结论：</strong> 两篇论文都因前向着色在<strong>光照变化下产生不可接受的混合伪影</strong>而摒弃它，并选择延迟渲染来<strong>解耦光照计算与几何混合</strong>。3DGS-DR 通过<strong>精简的延迟反射管线</strong>专注于<strong>实时+高质量镜面反射</strong>。DeferredGS 通过<strong>完整的PBR延迟管线 + SDF法线蒸馏</strong>实现<strong>场景解耦与编辑</strong>。它们的管线设计清晰地体现了各自的目标优先级（性能 vs 功能）。</p>
+<h2 id="几何与材质解耦的程度"><a href="#几何与材质解耦的程度" class="headerlink" title="几何与材质解耦的程度"></a>几何与材质解耦的程度</h2><h3 id="DGS-DR-Ye-et-al-的「最小化-Buffer」"><a href="#DGS-DR-Ye-et-al-的「最小化-Buffer」" class="headerlink" title="DGS-DR (Ye et al.) 的「最小化 Buffer」"></a><strong>DGS-DR (Ye et al.) 的「最小化 Buffer」</strong></h3><p><strong>目标：</strong> 仅解决<strong>镜面反射渲染问题</strong>，保持实时性能。<br><strong>Buffer 组成：</strong> 3 个通道 (C, N, R)<br><strong>光栅化方式：</strong> 直接对 Gaussian 属性进行加权混合（类似原始 3DGS 的颜色混合）。</p>
+<table>
+<thead>
+<tr>
+<th>通道</th>
+<th>符号</th>
+<th>参数名</th>
+<th>来源</th>
+<th>物理意义</th>
+<th>是否与光照无关？</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>C</strong></td>
+<td>基础颜色</td>
+<td><code>Base Color</code></td>
+<td>Gaussian 的 SH 系数计算得出</td>
+<td><strong>包含光照的漫反射+粗糙反射</strong>（低频部分）。例如：物体的固有色在日光下的颜色。</td>
+<td>❌ 否 (烘焙了原始光照)</td>
+</tr>
+<tr>
+<td><strong>N</strong></td>
+<td>法线</td>
+<td><code>Normal</code></td>
+<td>Gaussian 的<strong>最短轴方向</strong></td>
+<td>表面朝向，用于计算反射方向。</td>
+<td>✅ 是</td>
+</tr>
+<tr>
+<td><strong>R</strong></td>
+<td>反射强度</td>
+<td><code>Reflection Strength</code></td>
+<td>Gaussian 的标量属性 <code>r_i</code></td>
+<td>镜面反射的权重（0&#x3D;无反射, 1&#x3D;全反射）。控制 <code>C</code> 与环境反射的混合比例。</td>
+<td>✅ 是</td>
+</tr>
+</tbody></table>
+<p><strong>特点：</strong>  </p>
+<ul>
+<li><strong>极简设计</strong>：仅存储渲染反射必需的 3 个值。  </li>
+<li><strong>C 是混合结果</strong>：<code>C</code> 是 SH 计算出的<strong>最终颜色</strong>（含光照），非纯材质属性。  </li>
+<li><strong>反射计算简单</strong>：<br><code>Final Color = (1 - R) * C + R * EnvMap(N)</code><br>环境贴图查询 (<code>EnvMap</code>) 是唯一光照计算。</li>
+</ul>
+<hr>
+<h3 id="DeferredGS-Wu-et-al-的「完整-G-Buffer」"><a href="#DeferredGS-Wu-et-al-的「完整-G-Buffer」" class="headerlink" title="DeferredGS (Wu et al.) 的「完整 G-Buffer」"></a><strong>DeferredGS (Wu et al.) 的「完整 G-Buffer」</strong></h3><p><strong>目标：</strong> 实现<strong>材质-光照-几何解耦</strong>，支持编辑。<br><strong>Buffer 组成：</strong> 6 个通道 (P, N, kd, r, ks, α)<br><strong>光栅化方式：</strong> 混合<strong>纯材质&#x2F;几何属性</strong>（无光照信息）。</p>
+<table>
+<thead>
+<tr>
+<th>通道</th>
+<th>符号</th>
+<th>参数名</th>
+<th>来源</th>
+<th>物理意义</th>
+<th>是否与光照无关？</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>P</strong></td>
+<td>位置</td>
+<td><code>Position</code></td>
+<td>Gaussian 的中心位置</td>
+<td>表面点的 3D 坐标（可选，用于高级着色）。</td>
+<td>✅ 是</td>
+</tr>
+<tr>
+<td><strong>N</strong></td>
+<td>法线</td>
+<td><code>Normal</code></td>
+<td>Gaussian 的<strong>独立法线属性</strong></td>
+<td>精确表面朝向（通过 SDF 蒸馏优化）。</td>
+<td>✅ 是</td>
+</tr>
+<tr>
+<td><strong>kd</strong></td>
+<td>漫反射反照率</td>
+<td><code>Diffuse Albedo</code></td>
+<td>Gaussian 的材质属性 <code>kd_i</code></td>
+<td><strong>纯材质颜色</strong>（如：红色塑料的底色）。定义漫反射颜色。</td>
+<td>✅ 是</td>
+</tr>
+<tr>
+<td><strong>r</strong></td>
+<td>粗糙度</td>
+<td><code>Roughness</code></td>
+<td>Gaussian 的材质属性 <code>r_i</code></td>
+<td>表面光滑程度（0&#x3D;镜面, 1&#x3D;毛糙）。控制高光范围。</td>
+<td>✅ 是</td>
+</tr>
+<tr>
+<td><strong>ks</strong></td>
+<td>高光反照率</td>
+<td><code>Specular Albedo</code></td>
+<td>Gaussian 的材质属性 <code>ks_i</code></td>
+<td><strong>纯材质反射强度</strong>（如：金属的反射强度）。定义镜面反射的颜色和强度。</td>
+<td>✅ 是</td>
+</tr>
+<tr>
+<td><strong>α</strong></td>
+<td>不透明度</td>
+<td><code>Opacity</code></td>
+<td>Gaussian 的 <code>α_i</code></td>
+<td>像素的累积不透明度（用于跳过背景像素）。</td>
+<td>✅ 是</td>
+</tr>
+</tbody></table>
+<p><strong>特点：</strong>  </p>
+<ul>
+<li><p><strong>完整解耦</strong>：所有通道存储<strong>纯几何&#x2F;材质属性</strong>，与光照无关。  </p>
+</li>
+<li><p><strong>基于物理渲染 (PBR)</strong>：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Final Color = c_&#123;diff&#125;(kd, N) + c_&#123;spec&#125;(ks, r, N)</span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>c_diff</code> 和 <code>c_spec</code> 利用环境贴图实时计算漫反射和镜面反射。  </p>
+</li>
+<li><p><strong>支持编辑</strong>：因属性解耦，可直接修改 <code>kd</code>&#x2F;<code>ks</code>&#x2F;<code>r</code> 或 <code>N</code>&#x2F;<code>P</code> 实现纹理&#x2F;几何编辑。</p>
+</li>
+</ul>
+<hr>
+<h3 id="核心区别对比"><a href="#核心区别对比" class="headerlink" title="核心区别对比"></a><strong>核心区别对比</strong></h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>3DGS-DR 最小化 Buffer (C, N, R)</th>
+<th>DeferredGS 完整 G-Buffer (P, N, kd, r, ks, α)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>目标</strong></td>
+<td>高效渲染反射</td>
+<td>解耦场景用于编辑</td>
+</tr>
+<tr>
+<td><strong>Buffer 大小</strong></td>
+<td>3 通道</td>
+<td>6 通道 (+Position 可选)</td>
+</tr>
+<tr>
+<td><strong>材质属性</strong></td>
+<td>无独立材质参数</td>
+<td>显式存储 <code>kd</code> (反照率), <code>r</code> (粗糙度), <code>ks</code> (高光)</td>
+</tr>
+<tr>
+<td><strong>漫反射表示</strong></td>
+<td><code>C</code> 含光照 (SH 计算)</td>
+<td><code>kd</code> 为纯颜色 (无光照)</td>
+</tr>
+<tr>
+<td><strong>法线精度</strong></td>
+<td>近似 (Gaussian 最短轴)</td>
+<td>高精度 (SDF 蒸馏优化)</td>
+</tr>
+<tr>
+<td><strong>反射计算</strong></td>
+<td>简单环境贴图查询 (<code>R * EnvMap</code>)</td>
+<td>完整 PBR 着色 (<code>Split-Sum</code> 近似)</td>
+</tr>
+<tr>
+<td><strong>是否支持重光照</strong></td>
+<td>部分 (需重新优化 <code>r_i</code> 和 <code>EnvMap</code>)</td>
+<td>完全支持 (直接替换环境贴图)</td>
+</tr>
+<tr>
+<td><strong>是否支持材质编辑</strong></td>
+<td>否</td>
+<td>是 (直接修改 <code>kd</code>, <code>ks</code>, <code>r</code>)</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="为什么需要不同的-Buffer？"><a href="#为什么需要不同的-Buffer？" class="headerlink" title="为什么需要不同的 Buffer？"></a><strong>为什么需要不同的 Buffer？</strong></h3><ul>
+<li><p><strong>3DGS-DR 的极简设计</strong>：<br>专注<strong>实时镜面反射</strong>，只需 <code>N</code> 算反射方向 + <code>R</code> 控制反射强度 + <code>C</code> 提供非反射部分。牺牲材质解耦换取速度。</p>
+</li>
+<li><p><strong>DeferredGS 的完整设计</strong>：<br>为支持<strong>材质编辑和物理重光照</strong>，必须存储完整的材质属性 (<code>kd</code>, <code>ks</code>, <code>r</code>) 和精确几何 (<code>N</code>)。代价是更大的 G-Buffer 和更重的着色计算。</p>
+</li>
+</ul>
+<blockquote>
+<p>✅ <strong>简单记忆：</strong>  </p>
+<ul>
+<li><strong>C, N, R</strong> &#x3D; <strong>反射三件套</strong>（颜色基底+法线+反射强度）  </li>
+<li><strong>P, N, kd, r, ks, α</strong> &#x3D; <strong>PBR 六件套</strong>（位置+法线+反照率+粗糙度+高光+透明度）</li>
+</ul>
+</blockquote>
+<h2 id="DeferredGS是如何分离材质信息的，具体算法是什么"><a href="#DeferredGS是如何分离材质信息的，具体算法是什么" class="headerlink" title="DeferredGS是如何分离材质信息的，具体算法是什么"></a>DeferredGS是如何分离材质信息的，具体算法是什么</h2><p>DeferredGS 通过 <strong>物理材质参数化</strong> 和 <strong>延迟着色管线</strong> 实现材质信息分离，其核心算法流程如下：</p>
+<hr>
+<h3 id="一、材质参数化建模（关键创新）"><a href="#一、材质参数化建模（关键创新）" class="headerlink" title="一、材质参数化建模（关键创新）"></a>一、材质参数化建模（关键创新）</h3><p>为每个高斯点定义物理材质属性：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\text&#123;Gaussian&#125;_i = \&#123; \underbrace&#123;P_i, \Sigma_i, \alpha_i&#125;_&#123;\text&#123;几何属性&#125;&#125;, \underbrace&#123;k_&#123;d,i&#125;, r_i, k_&#123;s,i&#125;&#125;_&#123;\text&#123;材质属性&#125;&#125; \&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p><strong>漫反射反照率</strong> $k_{d,i}$：<br>表示表面固有颜色（与光照无关）  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">k_&#123;d,i&#125; \in \mathbb&#123;R&#125;^3 \quad (\text&#123;RGB值&#125;)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>粗糙度</strong> $r_i$：<br>控制表面微观结构的光滑程度  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">r_i \in [0,1] \quad \begin&#123;cases&#125; </span><br><span class="line">0 \rightarrow \text&#123;镜面&#125; \\ </span><br><span class="line">1 \rightarrow \text&#123;完全粗糙&#125;</span><br><span class="line">\end&#123;cases&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>镜面反照率</strong> $k_{s,i}$：<br>决定镜面反射强度和颜色  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">k_&#123;s,i&#125; \in \mathbb&#123;R&#125;^3 \quad \begin&#123;cases&#125; </span><br><span class="line">\text&#123;非金属&#125; \approx 0.02 \\ </span><br><span class="line">\text&#123;金属&#125; \approx \text&#123;基色&#125;</span><br><span class="line">\end&#123;cases&#125;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<blockquote>
+<p>🔍 <strong>与传统3DGS的本质区别</strong>：<br>原始球谐系数 $SH_i \rightarrow$ 综合编码材质+光照的<strong>最终颜色</strong><br>DeferredGS参数 ${k_d, r, k_s} \rightarrow$ 纯材质属性（与光照解耦）</p>
+</blockquote>
+<hr>
+<h3 id="二、延迟渲染管线（算法流程）"><a href="#二、延迟渲染管线（算法流程）" class="headerlink" title="二、延迟渲染管线（算法流程）"></a>二、延迟渲染管线（算法流程）</h3><h4 id="阶段1：光栅化到G-Buffer"><a href="#阶段1：光栅化到G-Buffer" class="headerlink" title="阶段1：光栅化到G-Buffer"></a>阶段1：光栅化到G-Buffer</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> each pixel (u,v):</span><br><span class="line">    <span class="comment"># 收集所有影响该像素的高斯</span></span><br><span class="line">    gaussians = get_overlapping_gaussians(P, Σ)  </span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 按深度排序</span></span><br><span class="line">    sorted_gaussians = sort_by_depth(gaussians)  </span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 初始化G-Buffer</span></span><br><span class="line">    G_buffer = &#123;kd:<span class="number">0</span>, r:<span class="number">0</span>, ks:<span class="number">0</span>, n:<span class="number">0</span>, α:<span class="number">0</span>, w_sum:<span class="number">0</span>&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># α混合材质属性</span></span><br><span class="line">    T = <span class="number">1.0</span>  <span class="comment"># 初始透射率</span></span><br><span class="line">    <span class="keyword">for</span> g <span class="keyword">in</span> sorted_gaussians:</span><br><span class="line">        w = g.α * T * gaussian_2d_weights(u,v)  <span class="comment"># 像素权重</span></span><br><span class="line">        G_buffer.kd += w * g.kd</span><br><span class="line">        G_buffer.r  += w * g.r</span><br><span class="line">        G_buffer.ks += w * g.ks</span><br><span class="line">        G_buffer.n  += w * g.normal  <span class="comment"># 法线</span></span><br><span class="line">        G_buffer.α  += w</span><br><span class="line">        T *= (<span class="number">1</span> - g.α)  <span class="comment"># 更新透射率</span></span><br><span class="line">        w_sum += w</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 归一化</span></span><br><span class="line">    G_buffer /= w_sum</span><br></pre></td></tr></table></figure>
+
+<p>输出：屏幕空间材质缓冲区 $G_{\text{buffer}} &#x3D; { k_d, r, k_s, \mathbf{n} }$</p>
+<h4 id="阶段2：物理着色（解耦核心）"><a href="#阶段2：物理着色（解耦核心）" class="headerlink" title="阶段2：物理着色（解耦核心）"></a>阶段2：物理着色（解耦核心）</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 输入：G-Buffer + 环境光照EnvMap</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pbr_shading</span>(<span class="params">G_buffer, EnvMap</span>):</span><br><span class="line">    n = normalize(G_buffer.n)  <span class="comment"># 法线</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 漫反射项 (Lambertian)</span></span><br><span class="line">    irradiance = EnvMap.diffuse_sample(n)</span><br><span class="line">    c_diff = k_d / \pi * irradiance</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 镜面项 (Cook-Torrance)</span></span><br><span class="line">    v = view_direction()       <span class="comment"># 视线方向</span></span><br><span class="line">    h = normalize(v + light_dir) <span class="comment"># 半角向量</span></span><br><span class="line">    D = GGX_distribution(r, n·h)  <span class="comment"># 法线分布</span></span><br><span class="line">    F = fresnel_schlick(ks, v·h) <span class="comment"># 菲涅尔</span></span><br><span class="line">    G = smith_geometry(r, n, v, light_dir) <span class="comment"># 几何遮蔽</span></span><br><span class="line">    </span><br><span class="line">    specular = (D * F * G) / (<span class="number">4</span> * <span class="built_in">max</span>(n·v, <span class="number">0.1</span>) * <span class="built_in">max</span>(n·light_dir, <span class="number">0.1</span>))</span><br><span class="line">    c_spec = ks * specular * EnvMap.specular_sample(reflect_dir)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> c_diff + c_spec</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="三、材质优化算法（训练过程）"><a href="#三、材质优化算法（训练过程）" class="headerlink" title="三、材质优化算法（训练过程）"></a>三、材质优化算法（训练过程）</h3><h4 id="1-法线蒸馏（几何基础）"><a href="#1-法线蒸馏（几何基础）" class="headerlink" title="1. 法线蒸馏（几何基础）"></a>1. 法线蒸馏（几何基础）</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\mathcal&#123;L&#125;_&#123;\text&#123;nd&#125;&#125; = \sum_&#123;\text&#123;ray&#125;&#125; \| \mathbf&#123;n&#125;_&#123;\text&#123;gs&#125;&#125; - \mathbf&#123;n&#125;_&#123;\text&#123;sdf&#125;&#125; \|_2</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>联合训练SDF网络 $\Phi_{\text{sdf}}$ 提供几何先验</li>
+<li>强制高斯法线 $\mathbf{n}<em>{\text{gs}}$ 对齐SDF零水平集法线 $\nabla \Phi</em>{\text{sdf}}$</li>
+</ul>
+<h4 id="2-材质-光照解耦损失"><a href="#2-材质-光照解耦损失" class="headerlink" title="2. 材质-光照解耦损失"></a>2. 材质-光照解耦损失</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\mathcal&#123;L&#125; = \lambda_1 \underbrace&#123;\|I_&#123;\text&#123;render&#125;&#125; - I_&#123;\text&#123;gt&#125;&#125;\|_1&#125;_&#123;\text&#123;光度损失&#125;&#125; + \lambda_2 \underbrace&#123;\mathcal&#123;L&#125;_&#123;\text&#123;nd&#125;&#125;&#125;_&#123;\text&#123;法线对齐&#125;&#125; + \lambda_3 \underbrace&#123;\text&#123;TV&#125;(k_d, k_s)&#125;_&#123;\text&#123;材质平滑性&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><strong>TV正则化</strong>：约束材质参数空间连续性</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\text&#123;TV&#125;(k) = \sum |\nabla_x k| + |\nabla_y k|</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="3-优化流程"><a href="#3-优化流程" class="headerlink" title="3. 优化流程"></a>3. 优化流程</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">graph LR</span><br><span class="line">A[输入多视图图像] --&gt; B[联合优化]</span><br><span class="line">B --&gt; C[SDF网络] </span><br><span class="line">B --&gt; D[高斯参数]</span><br><span class="line">C --&gt;|法线监督| D</span><br><span class="line">D --&gt;|材质属性| E[G-Buffer生成]</span><br><span class="line">E --&gt; F[PBR着色]</span><br><span class="line">F --&gt; G[损失计算]</span><br><span class="line">G --&gt;|梯度回传| B</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="四、材质解耦的数学本质"><a href="#四、材质解耦的数学本质" class="headerlink" title="四、材质解耦的数学本质"></a>四、材质解耦的数学本质</h3><p>原始3DGS的渲染方程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C = \sum \textcolor&#123;red&#125;&#123;SH(\mathbf&#123;v&#125;)&#125; \cdot \alpha \cdot T</span><br></pre></td></tr></table></figure>
+
+<p>DeferredGS的解耦形式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C = \underbrace&#123;f_&#123;\text&#123;diff&#125;&#125;(\textcolor&#123;blue&#125;&#123;k_d&#125;, \mathbf&#123;n&#125;, L)&#125;_&#123;\text&#123;漫反射&#125;&#125; + \underbrace&#123;f_&#123;\text&#123;spec&#125;&#125;(\textcolor&#123;blue&#125;&#123;k_s&#125;, \textcolor&#123;blue&#125;&#123;r&#125;, \mathbf&#123;n&#125;, \mathbf&#123;v&#125;, L)&#125;_&#123;\text&#123;镜面反射&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中：</p>
+<ul>
+<li>$\textcolor{blue}{k_d, k_s, r}$ 为<strong>纯材质参数</strong>（光照不变性）</li>
+<li>$L$ 为独立优化的环境光照</li>
+<li>$\mathbf{v}$ 为视角方向</li>
+<li>$\mathbf{n}$ 为蒸馏法线</li>
+</ul>
+<hr>
+<h3 id="五、实验验证"><a href="#五、实验验证" class="headerlink" title="五、实验验证"></a>五、实验验证</h3><p>在Shiny Blender数据集上的分解结果：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>PSNR↑</th>
+<th>SSIM↑</th>
+<th>LPIPS↓</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>漫反射反照率</td>
+<td>31.99</td>
+<td>0.977</td>
+<td>0.021</td>
+</tr>
+<tr>
+<td>法线</td>
+<td>MAE&#x3D;0.024°</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>镜面反射</td>
+<td>22.24</td>
+<td>0.939</td>
+<td>0.049</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>数据表明：  </p>
+<ol>
+<li>材质参数可准确重建表面固有属性  </li>
+<li>法线蒸馏使几何误差降低47%  </li>
+<li>解耦材质支持真实重光照（LPIPS↓28%）</li>
+</ol>
+</blockquote>
+<hr>
+<h3 id="总结：DeferredGS的材质分离机理"><a href="#总结：DeferredGS的材质分离机理" class="headerlink" title="总结：DeferredGS的材质分离机理"></a>总结：DeferredGS的材质分离机理</h3><ol>
+<li><strong>参数替换</strong>：用物理材质参数 $k_d, r, k_s$ 替代耦合的SH系数</li>
+<li><strong>延迟架构</strong>：G-Buffer隔离材质与光照计算</li>
+<li><strong>几何蒸馏</strong>：SDF提供表面法线先验</li>
+<li><strong>解耦优化</strong>：TV正则化约束材质空间一致性</li>
+<li><strong>物理渲染</strong>：PBR模型实现真实材质交互</li>
+</ol>
+<blockquote>
+<p>💡 本质是将传统渲染管线的<strong>材质通道（Material Pass）</strong> 引入可微高斯表示，通过微分渲染实现逆材质估计。</p>
+</blockquote>
+<h2 id="原始3DGS的法线MAE怎么来的"><a href="#原始3DGS的法线MAE怎么来的" class="headerlink" title="原始3DGS的法线MAE怎么来的"></a>原始3DGS的法线MAE怎么来的</h2><p>原始3DGS虽无法线属性，但其法线MAE（12.7°）是通过<strong>几何派生法线</strong>与<strong>真值对比</strong>计算而来，具体方法如下：</p>
+<hr>
+<h3 id="法线计算原理"><a href="#法线计算原理" class="headerlink" title="法线计算原理"></a>法线计算原理</h3><h4 id="1-从协方差矩阵派生法线"><a href="#1-从协方差矩阵派生法线" class="headerlink" title="1. 从协方差矩阵派生法线"></a>1. <strong>从协方差矩阵派生法线</strong></h4><p>   原始3DGS中每个高斯的协方差矩阵 $\Sigma_i$ 可分解为：</p>
+   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\Sigma_i = R_i S_i S_i^T R_i^T</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>$R_i$：旋转矩阵（由高斯方向决定）</li>
+<li>$S_i$：缩放矩阵（包含3个轴长 ${s_x, s_y, s_z}$)</li>
+</ul>
+<p>   <strong>法线生成规则</strong>：</p>
+   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\mathbf&#123;n&#125;_i = R_i \cdot \begin&#123;bmatrix&#125; 0 \\ 0 \\ 1 \end&#123;bmatrix&#125; \quad (\text&#123;取最短轴方向&#125;)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>假设最小缩放轴 $s_z$ 为表面法向</p>
+</blockquote>
+<h4 id="2-屏幕空间法线混合"><a href="#2-屏幕空间法线混合" class="headerlink" title="2. 屏幕空间法线混合"></a>2. <strong>屏幕空间法线混合</strong></h4><p>   渲染像素法线时，使用与颜色相同的α混合：</p>
+   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\mathbf&#123;n&#125;_&#123;\text&#123;pixel&#125;&#125; = \frac&#123;\sum_i \mathbf&#123;n&#125;_i \cdot \alpha_i T_i w_i&#125;&#123;\sum_i \alpha_i T_i w_i&#125;</span><br></pre></td></tr></table></figure>
+
+<p>   其中 $w_i$ 为高斯2D投影权重</p>
+<hr>
+<h3 id="评估流程（以Shiny-Blender数据集为例）"><a href="#评估流程（以Shiny-Blender数据集为例）" class="headerlink" title="评估流程（以Shiny Blender数据集为例）"></a>评估流程（以Shiny Blender数据集为例）</h3><h4 id="步骤1：训练原始3DGS模型"><a href="#步骤1：训练原始3DGS模型" class="headerlink" title="步骤1：训练原始3DGS模型"></a>步骤1：训练原始3DGS模型</h4><ul>
+<li>输入：多视角图像（含相机位姿）</li>
+<li>输出：优化后的高斯参数 ${P_i, \Sigma_i, \alpha_i, \text{SH}_i}$</li>
+</ul>
+<h4 id="步骤2：派生法线场"><a href="#步骤2：派生法线场" class="headerlink" title="步骤2：派生法线场"></a>步骤2：派生法线场</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> each gaussian i:</span><br><span class="line">    <span class="comment"># 分解协方差矩阵</span></span><br><span class="line">    eigvals, eigvecs = torch.linalg.eigh(Σ_i) </span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 找到最小特征值索引</span></span><br><span class="line">    min_idx = torch.argmin(eigvals)  </span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 法线 = 对应特征向量</span></span><br><span class="line">    n_i = eigvecs[:, min_idx]  </span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 朝向修正 (指向相机)</span></span><br><span class="line">    <span class="keyword">if</span> dot(n_i, view_dir) &gt; <span class="number">0</span>: </span><br><span class="line">        n_i = -n_i</span><br></pre></td></tr></table></figure>
+
+<h4 id="步骤3：渲染法线图像"><a href="#步骤3：渲染法线图像" class="headerlink" title="步骤3：渲染法线图像"></a>步骤3：渲染法线图像</h4><ul>
+<li>使用3DGS渲染器，将 $\mathbf{n}_i$ 作为属性输入</li>
+<li>输出：法线图 $I_{\text{normal}}^{\text{pred}} \in \mathbb{R}^{H \times W \times 3}$</li>
+</ul>
+<h4 id="步骤4：计算法线MAE"><a href="#步骤4：计算法线MAE" class="headerlink" title="步骤4：计算法线MAE"></a>步骤4：计算法线MAE</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\text&#123;MAE&#125; = \frac&#123;1&#125;&#123;|\mathcal&#123;M&#125;|&#125; \sum_&#123;(u,v) \in \mathcal&#123;M&#125;&#125; \cos^&#123;-1&#125; \left( \mathbf&#123;n&#125;_&#123;uv&#125;^&#123;\text&#123;pred&#125;&#125; \cdot \mathbf&#123;n&#125;_&#123;uv&#125;^&#123;\text&#123;gt&#125;&#125; \right)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>$\mathcal{M}$：物体掩码区域（忽略背景）</li>
+<li>$\mathbf{n}^{\text{gt}}$：Blender生成的地面真值法线</li>
+</ul>
+<hr>
+<h3 id="误差来源分析"><a href="#误差来源分析" class="headerlink" title="误差来源分析"></a>误差来源分析</h3><h4 id="1-几何表示缺陷"><a href="#1-几何表示缺陷" class="headerlink" title="1. 几何表示缺陷"></a>1. <strong>几何表示缺陷</strong></h4><table>
+<thead>
+<tr>
+<th>问题类型</th>
+<th>导致误差</th>
+<th>示例场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>体积嵌入</strong></td>
+<td>2-5°</td>
+<td>高斯中心偏离表面</td>
+</tr>
+<tr>
+<td><strong>各向异性失真</strong></td>
+<td>5-10°</td>
+<td>薄结构（杯壁）</td>
+</tr>
+<tr>
+<td><strong>多表面干扰</strong></td>
+<td>8-15°</td>
+<td>物体相交处</td>
+</tr>
+</tbody></table>
+<h4 id="2-派生策略局限"><a href="#2-派生策略局限" class="headerlink" title="2. 派生策略局限"></a>2. <strong>派生策略局限</strong></h4><ul>
+<li><p><strong>最短轴假设失效</strong>：  </p>
+<ul>
+<li>球体表面：有效（误差≈3°）  </li>
+<li>锐利边缘：失效（误差&gt;15°）</li>
+</ul>
+</li>
+<li><p><strong>混合伪影</strong>：<br>透明物体混合时法线插值失真</p>
+</li>
+</ul>
+<h4 id="3-数据统计（Shiny-Blender）"><a href="#3-数据统计（Shiny-Blender）" class="headerlink" title="3. 数据统计（Shiny Blender）"></a>3. 数据统计（Shiny Blender）</h4><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>平均MAE</th>
+<th>最大MAE</th>
+<th>高频区域MAE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Ball</td>
+<td>4.2°</td>
+<td>18.7°</td>
+<td>7.3°</td>
+</tr>
+<tr>
+<td>Car</td>
+<td>11.5°</td>
+<td>43.6°</td>
+<td>24.1°</td>
+</tr>
+<tr>
+<td>Helmet</td>
+<td>8.9°</td>
+<td>32.8°</td>
+<td>15.7°</td>
+</tr>
+<tr>
+<td><strong>平均</strong></td>
+<td><strong>12.7°</strong></td>
+<td>38.4°</td>
+<td>18.2°</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="与显式法线方法的对比"><a href="#与显式法线方法的对比" class="headerlink" title="与显式法线方法的对比"></a>与显式法线方法的对比</h3><table>
+<thead>
+<tr>
+<th>方法</th>
+<th>法线来源</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>原始3DGS</strong></td>
+<td>协方差矩阵特征分解</td>
+<td>无需额外计算</td>
+<td>几何噪声导致法线抖动</td>
+</tr>
+<tr>
+<td><strong>DeferredGS</strong></td>
+<td>SDF网络蒸馏</td>
+<td>表面连续性强，精度高</td>
+<td>需联合训练SDF</td>
+</tr>
+<tr>
+<td><strong>GaussianShader</strong></td>
+<td>深度图梯度计算</td>
+<td>符合视觉直观</td>
+<td>深度噪声放大法线误差</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>原始3DGS的12.7° MAE本质是<strong>几何表示不完善</strong>的副产品：  </p>
+<ul>
+<li>高斯椭球是体积代理，非真实表面  </li>
+<li>协方差优化目标为颜色拟合，非法线精度</li>
+</ul>
+</blockquote>
+<hr>
+<h3 id="附：法线可视化对比"><a href="#附：法线可视化对比" class="headerlink" title="附：法线可视化对比"></a>附：法线可视化对比</h3><ol>
+<li><strong>真值</strong>：Blender生成的光滑法线  </li>
+<li><strong>原始3DGS</strong>：噪点多，边缘断裂（红色框）  </li>
+<li><strong>DeferredGS</strong>：细节完整，符合表面连续性</li>
+</ol>
+<h2 id="采用延迟渲染（Deferred-Shading）的核心动机"><a href="#采用延迟渲染（Deferred-Shading）的核心动机" class="headerlink" title="采用延迟渲染（Deferred Shading）的核心动机"></a>采用延迟渲染（Deferred Shading）的核心动机</h2><p>是<strong>解决前向着色（Forward Shading）在光照变化下的混合伪影问题，并实现材质-光照解耦</strong>。原始3DGS的前向着色将光照计算嵌入高斯属性的优化中，导致以下问题：</p>
+<ol>
+<li><strong>混合伪影</strong>：光照变化时，几何属性（如不透明度）在原始光照下优化，重新着色后高斯边界处出现颜色不连续。</li>
+<li><strong>耦合表示</strong>：球谐函数（SH）综合编码材质与光照，无法独立编辑。</li>
+<li><strong>反射建模不足</strong>：SH的低频特性难以捕捉高频镜面反射。</li>
+</ol>
+<p>延迟渲染通过<strong>解耦几何&#x2F;材质存储与光照计算</strong>，将渲染分为两阶段：</p>
+<ol>
+<li><strong>几何通道（G-Buffer生成）</strong>：光栅化几何与材质属性到屏幕空间缓冲区。</li>
+<li><strong>着色通道</strong>：基于G-Buffer和独立光照模型（如环境贴图）进行像素级着色。</li>
+</ol>
+<p>这种架构避免了前向管线的缺陷，并为动态重光照和材质编辑提供基础。</p>
+<hr>
+<h3 id="🔍-两篇论文的延迟渲染实现差异"><a href="#🔍-两篇论文的延迟渲染实现差异" class="headerlink" title="🔍 两篇论文的延迟渲染实现差异"></a>🔍 两篇论文的延迟渲染实现差异</h3><p>以下两篇论文虽均采用延迟渲染，但在目标、技术路径与适用场景上存在显著区别：</p>
+<h4 id="⚙️-1-DeferredGS-Wu-et-al"><a href="#⚙️-1-DeferredGS-Wu-et-al" class="headerlink" title="⚙️ 1. DeferredGS [Wu et al.]"></a>⚙️ <strong>1. DeferredGS</strong> [Wu et al.]</h4><p><strong>核心目标</strong>：实现几何-材质-光照的<strong>完全解耦以支持场景编辑</strong>。<br><strong>关键技术</strong>：  </p>
+<ul>
+<li><strong>材质模型</strong>：  <ul>
+<li>为每个高斯定义物理材质参数：漫反射反照率（$k_d$）、粗糙度（$r$）、镜面反照率（$k_s$），替代SH。  </li>
+<li>支持物理着色（PBR）：基于迪士尼BRDF模型分离漫反射与镜面项。</li>
+</ul>
+</li>
+<li><strong>几何优化</strong>：  <ul>
+<li><strong>SDF蒸馏法线</strong>：联合训练符号距离场（SDF）网络，强制高斯法线对齐SDF零水平集，提升表面连续性。</li>
+</ul>
+</li>
+<li><strong>G-Buffer设计</strong>：  <ul>
+<li>完整缓冲区：位置（$P$）、法线（$N$）、$k_d$、$r$、$k_s$、不透明度（$\alpha$)。</li>
+</ul>
+</li>
+<li><strong>编辑支持</strong>：  <ul>
+<li>重光照：直接替换环境贴图。  </li>
+<li>几何编辑：通过网格代理的ARAP变形调整高斯位置与法线。</li>
+</ul>
+</li>
+<li><strong>性能</strong>：  <ul>
+<li>约30 FPS@800×800（NVIDIA 3090），训练需3–4小时。</li>
+</ul>
+</li>
+</ul>
+<h4 id="⚡-2-3D-Gaussian-Splatting-with-Deferred-Reflection-Ye-et-al"><a href="#⚡-2-3D-Gaussian-Splatting-with-Deferred-Reflection-Ye-et-al" class="headerlink" title="⚡ 2. 3D Gaussian Splatting with Deferred Reflection [Ye et al.]"></a>⚡ <strong>2. 3D Gaussian Splatting with Deferred Reflection</strong> [Ye et al.]</h4><p><strong>核心目标</strong>：<strong>高效渲染高质量镜面反射</strong>，保持原始3DGS的实时性。<br><strong>关键技术</strong>：  </p>
+<ul>
+<li><strong>材质模型</strong>：  <ul>
+<li>简化参数：保留SH表示基础色（含漫反射与粗糙反射），新增标量反射强度（$r_i$）控制环境贴图混合权重。  </li>
+<li>反射计算：$C_{\text{final}} &#x3D; (1-R) \cdot C_{\text{base}} + R \cdot E(\text{reflection_dir})$。</li>
+</ul>
+</li>
+<li><strong>几何优化</strong>：  <ul>
+<li><strong>法线传播策略</strong>：将高反射强度高斯（$r_i &gt; 0.1$）膨胀1.5倍，使其覆盖邻近高斯，传播正确法线方向。</li>
+</ul>
+</li>
+<li><strong>G-Buffer设计</strong>：  <ul>
+<li>最小化缓冲区：基础颜色（$C$）、法线（$N$）、反射强度（$R$)。</li>
+</ul>
+</li>
+<li><strong>反射优化</strong>：  <ul>
+<li><strong>颜色破坏（Color Sabotage）</strong>：对非反射高斯添加颜色噪声，防止基础色过拟合干扰反射发现。</li>
+</ul>
+</li>
+<li><strong>性能</strong>：  <ul>
+<li>渲染速度≈原始3DGS（251 FPS合成场景&#x2F;80 FPS真实场景）。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="💎-核心区别总结"><a href="#💎-核心区别总结" class="headerlink" title="💎 核心区别总结"></a>💎 核心区别总结</h3><p>下表概括两篇论文的核心差异：</p>
+<table>
+<thead>
+<tr>
+<th><strong>维度</strong></th>
+<th><strong>DeferredGS</strong></th>
+<th><strong>3DGS with Deferred Reflection</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>核心目标</strong></td>
+<td>场景解耦与编辑（材质&#x2F;几何&#x2F;光照）</td>
+<td>高效渲染高质量镜面反射</td>
+</tr>
+<tr>
+<td><strong>材质表示</strong></td>
+<td>物理参数（$k_d$, $r$, $k_s$）</td>
+<td>SH基础色 + 反射强度标量 $r_i$</td>
+</tr>
+<tr>
+<td><strong>法线来源</strong></td>
+<td>SDF网络蒸馏</td>
+<td>高斯最短轴 + 法线传播策略</td>
+</tr>
+<tr>
+<td><strong>G-Buffer</strong></td>
+<td>6通道（$P$, $N$, $k_d$, $r$, $k_s$, $\alpha$)</td>
+<td>3通道（$C$, $N$, $R$)</td>
+</tr>
+<tr>
+<td><strong>编辑能力</strong></td>
+<td>支持重光照、几何变形、纹理编辑</td>
+<td>仅优化反射效果，不支持场景编辑</td>
+</tr>
+<tr>
+<td><strong>渲染速度</strong></td>
+<td>~30 FPS (NVIDIA 3090)</td>
+<td>≈原始3DGS（&gt;200 FPS）</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>影视特效、虚拟产品设计</td>
+<td>实时AR&#x2F;VR、游戏引擎</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="🌐-技术演进意义"><a href="#🌐-技术演进意义" class="headerlink" title="🌐 技术演进意义"></a>🌐 技术演进意义</h3><p>两项工作代表了3DGS向<strong>可编辑性</strong>与<strong>物理真实性</strong>演进的两条路径：</p>
+<ol>
+<li><strong>DeferredGS</strong> 通过引入传统渲染管线的材质通道（Material Pass），弥合了可微渲染与物理编辑的鸿沟，为工业级内容创作提供基础。</li>
+<li><strong>3DGS-DR</strong> 以最小开销提升反射质量，证明延迟渲染可兼容3DGS的实时性优势，推动其在动态光照场景（如车载AR-HUD）落地。</li>
+</ol>
+<p>未来方向包括结合<strong>分布式计算</strong>支持城市级场景、<strong>光学模型</strong>解决透明物体折射，以及<strong>生成式先验</strong>辅助弱纹理区域重建。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://brinjaul521.github.io">贺腾</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://brinjaul521.github.io/2025/09/21/DeferredGS-%E5%92%8C-3DGS-DR%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94/">https://brinjaul521.github.io/2025/09/21/DeferredGS-%E5%92%8C-3DGS-DR%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://brinjaul521.github.io" target="_blank">贺腾的博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/3DGS/">3DGS</a></div><div class="post-share"><div class="social-share" data-image="/2025/09/21/DeferredGS-%E5%92%8C-3DGS-DR%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94/boy.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2025/09/20/C-%E6%A0%B8%E5%BF%83%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" title="C++核心语言特性"><img class="cover" src="/2025/09/20/C-%E6%A0%B8%E5%BF%83%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/joker.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">C++核心语言特性</div></div><div class="info-2"><div class="info-item-1">C++核⼼语⾔特性基础语法与概念  指针占用内存，为什么引用不一定占用内存这是一个非常经典、但又容易混淆的问题。我们来一步步拆解：   ✅ 一句话结论： 指针是一个变量，必须占用内存；而引用是别名，编译器在大多数情况下会把它优化为直接访问对象本身，因此不一定占用内存。   🔍 详细解释：1. 指针是一个变量 指针本身是一个独立的变量，存储的是另一个对象的地址。 既然它是一个变量，那它就必须占用内存（通常是 4 字节或 8 字节，取决于平台）。  12int a = 10;int* p = &amp;a;  // p 是一个变量，占用内存，存储的是 a 的地址  2. 引用是别名，不是变量 引用在语义上是某个对象的别名，编译器在编译阶段会把它解析为原始对象本身。 在大多数情况下，编译器会优化掉引用，不会为它分配额外内存。  12int a = 10;int&amp; r = a;  // r 是 a 的别名，编译器通常会直接替换成 a 本身   🧠 举个例子（汇编层面）：指针版本：123int a = 10;int* p = &amp;a;*p = 20;  汇编（简化）： 1...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/" title="3DGS-DR部署及训练教程"><img class="cover" src="/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/pipeline.png" alt="cover"><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-09-19</div><div class="info-item-2">3DGS-DR部署及训练教程</div></div><div class="info-2"><div class="info-item-1">3DGS-DR部署及训练教程 项目介绍​	paper：3D Gaussian Splatting with Deferred Reflection ​	web:3D Gaussian Splatting with Deferred Reflection ​	github：https://github.com/gapszju/3DGS-DR.git ​	摘要：神经与高斯基辐射场方法的兴起在新视角合成领域取得了巨大成功。然而，镜面反射仍然是一个非平凡的问题，因为高频辐射场 notoriously 难以稳定且准确地拟合。我们提出了一种延迟着色方法，能够有效地利用高斯溅射渲染镜面反射。关键挑战来自于环境贴图反射模型，该模型需要精确的表面法线，同时其不连续的梯度又成为法线估计的瓶颈。我们利用延迟着色生成的逐像素反射梯度，在相邻高斯的优化过程之间架起桥梁，使得近乎正确的法线估计能够逐步传播，最终覆盖所有反射物体。我们的方法在合成高质量镜面反射效果方面显著优于现有最先进技术和同期工作，在合成场景与真实场景中均实现了峰值信噪比（PSNR）的持续提升，同时运行帧率几乎与原始高斯溅射相同。 项目部署...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/head.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">贺腾</div><div class="author-info-description">我等的不是海边</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">14</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/brinjaul521/"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/brinjaul521/" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:1061391142@qq.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">记录一下学习路线，顺便找个工作</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#DeferredGS-%E5%92%8C-3DGS-DR%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94"><span class="toc-number">1.</span> <span class="toc-text">DeferredGS 和 3DGS-DR技术对比</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AF%B9%E6%AF%94%E7%AE%80%E4%BB%8B"><span class="toc-number">1.1.</span> <span class="toc-text">对比简介</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B8%E5%90%8C%E4%B9%8B%E5%A4%84-Key-Similarities"><span class="toc-number">1.1.1.</span> <span class="toc-text">相同之处 (Key Similarities)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8D%E5%90%8C%E4%B9%8B%E5%A4%84-Key-Differences"><span class="toc-number">1.1.2.</span> <span class="toc-text">不同之处 (Key Differences)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93-Conclusion"><span class="toc-number">1.1.3.</span> <span class="toc-text">总结 (Conclusion)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E4%BD%BF%E7%94%A8%E5%89%8D%E5%90%91%E7%9D%80%E8%89%B2%E8%80%8C%E6%98%AF%E4%BD%BF%E7%94%A8%E5%BB%B6%E8%BF%9F%E7%9D%80%E8%89%B2"><span class="toc-number">1.2.</span> <span class="toc-text">为什么不使用前向着色而是使用延迟着色</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E6%91%92%E5%BC%83%E5%89%8D%E5%90%91%E7%9D%80%E8%89%B2%EF%BC%9F%E5%85%B1%E5%90%8C%E7%9A%84%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98"><span class="toc-number">1.2.1.</span> <span class="toc-text">为什么摒弃前向着色？共同的核心问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%A4%E7%AF%87%E8%AE%BA%E6%96%87%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9A%E5%BB%B6%E8%BF%9F%E6%B8%B2%E6%9F%93%EF%BC%88Deferred-Shading%EF%BC%89"><span class="toc-number">1.2.2.</span> <span class="toc-text">两篇论文的解决方案：延迟渲染（Deferred Shading）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%A4%E7%AF%87%E8%AE%BA%E6%96%87%E7%9A%84%E5%BB%B6%E8%BF%9F%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%E8%AF%A6%E8%A7%A3"><span class="toc-number">1.2.3.</span> <span class="toc-text">两篇论文的延迟渲染管线详解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3D-Gaussian-Splatting-with-Deferred-Reflection-Ye-et-al"><span class="toc-number">1.2.3.1.</span> <span class="toc-text">1. 3D Gaussian Splatting with Deferred Reflection (Ye et al.)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-DeferredGS-Wu-et-al"><span class="toc-number">1.2.3.2.</span> <span class="toc-text">2. DeferredGS (Wu et al.)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A%E6%91%92%E5%BC%83%E5%89%8D%E5%90%91-%E9%80%89%E6%8B%A9%E5%BB%B6%E8%BF%9F%E7%9A%84%E5%8E%9F%E5%9B%A0%E5%AF%B9%E6%AF%94%E8%A1%A8"><span class="toc-number">1.2.4.</span> <span class="toc-text">总结：摒弃前向 &amp; 选择延迟的原因对比表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%A0%E4%BD%95%E4%B8%8E%E6%9D%90%E8%B4%A8%E8%A7%A3%E8%80%A6%E7%9A%84%E7%A8%8B%E5%BA%A6"><span class="toc-number">1.3.</span> <span class="toc-text">几何与材质解耦的程度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DGS-DR-Ye-et-al-%E7%9A%84%E3%80%8C%E6%9C%80%E5%B0%8F%E5%8C%96-Buffer%E3%80%8D"><span class="toc-number">1.3.1.</span> <span class="toc-text">DGS-DR (Ye et al.) 的「最小化 Buffer」</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DeferredGS-Wu-et-al-%E7%9A%84%E3%80%8C%E5%AE%8C%E6%95%B4-G-Buffer%E3%80%8D"><span class="toc-number">1.3.2.</span> <span class="toc-text">DeferredGS (Wu et al.) 的「完整 G-Buffer」</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%8C%BA%E5%88%AB%E5%AF%B9%E6%AF%94"><span class="toc-number">1.3.3.</span> <span class="toc-text">核心区别对比</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E4%B8%8D%E5%90%8C%E7%9A%84-Buffer%EF%BC%9F"><span class="toc-number">1.3.4.</span> <span class="toc-text">为什么需要不同的 Buffer？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DeferredGS%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%86%E7%A6%BB%E6%9D%90%E8%B4%A8%E4%BF%A1%E6%81%AF%E7%9A%84%EF%BC%8C%E5%85%B7%E4%BD%93%E7%AE%97%E6%B3%95%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.4.</span> <span class="toc-text">DeferredGS是如何分离材质信息的，具体算法是什么</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E6%9D%90%E8%B4%A8%E5%8F%82%E6%95%B0%E5%8C%96%E5%BB%BA%E6%A8%A1%EF%BC%88%E5%85%B3%E9%94%AE%E5%88%9B%E6%96%B0%EF%BC%89"><span class="toc-number">1.4.1.</span> <span class="toc-text">一、材质参数化建模（关键创新）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E5%BB%B6%E8%BF%9F%E6%B8%B2%E6%9F%93%E7%AE%A1%E7%BA%BF%EF%BC%88%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B%EF%BC%89"><span class="toc-number">1.4.2.</span> <span class="toc-text">二、延迟渲染管线（算法流程）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B6%E6%AE%B51%EF%BC%9A%E5%85%89%E6%A0%85%E5%8C%96%E5%88%B0G-Buffer"><span class="toc-number">1.4.2.1.</span> <span class="toc-text">阶段1：光栅化到G-Buffer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%98%B6%E6%AE%B52%EF%BC%9A%E7%89%A9%E7%90%86%E7%9D%80%E8%89%B2%EF%BC%88%E8%A7%A3%E8%80%A6%E6%A0%B8%E5%BF%83%EF%BC%89"><span class="toc-number">1.4.2.2.</span> <span class="toc-text">阶段2：物理着色（解耦核心）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E6%9D%90%E8%B4%A8%E4%BC%98%E5%8C%96%E7%AE%97%E6%B3%95%EF%BC%88%E8%AE%AD%E7%BB%83%E8%BF%87%E7%A8%8B%EF%BC%89"><span class="toc-number">1.4.3.</span> <span class="toc-text">三、材质优化算法（训练过程）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%B3%95%E7%BA%BF%E8%92%B8%E9%A6%8F%EF%BC%88%E5%87%A0%E4%BD%95%E5%9F%BA%E7%A1%80%EF%BC%89"><span class="toc-number">1.4.3.1.</span> <span class="toc-text">1. 法线蒸馏（几何基础）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E6%9D%90%E8%B4%A8-%E5%85%89%E7%85%A7%E8%A7%A3%E8%80%A6%E6%8D%9F%E5%A4%B1"><span class="toc-number">1.4.3.2.</span> <span class="toc-text">2. 材质-光照解耦损失</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E4%BC%98%E5%8C%96%E6%B5%81%E7%A8%8B"><span class="toc-number">1.4.3.3.</span> <span class="toc-text">3. 优化流程</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E6%9D%90%E8%B4%A8%E8%A7%A3%E8%80%A6%E7%9A%84%E6%95%B0%E5%AD%A6%E6%9C%AC%E8%B4%A8"><span class="toc-number">1.4.4.</span> <span class="toc-text">四、材质解耦的数学本质</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E5%AE%9E%E9%AA%8C%E9%AA%8C%E8%AF%81"><span class="toc-number">1.4.5.</span> <span class="toc-text">五、实验验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9ADeferredGS%E7%9A%84%E6%9D%90%E8%B4%A8%E5%88%86%E7%A6%BB%E6%9C%BA%E7%90%86"><span class="toc-number">1.4.6.</span> <span class="toc-text">总结：DeferredGS的材质分离机理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%A7%8B3DGS%E7%9A%84%E6%B3%95%E7%BA%BFMAE%E6%80%8E%E4%B9%88%E6%9D%A5%E7%9A%84"><span class="toc-number">1.5.</span> <span class="toc-text">原始3DGS的法线MAE怎么来的</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%95%E7%BA%BF%E8%AE%A1%E7%AE%97%E5%8E%9F%E7%90%86"><span class="toc-number">1.5.1.</span> <span class="toc-text">法线计算原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E4%BB%8E%E5%8D%8F%E6%96%B9%E5%B7%AE%E7%9F%A9%E9%98%B5%E6%B4%BE%E7%94%9F%E6%B3%95%E7%BA%BF"><span class="toc-number">1.5.1.1.</span> <span class="toc-text">1. 从协方差矩阵派生法线</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%B1%8F%E5%B9%95%E7%A9%BA%E9%97%B4%E6%B3%95%E7%BA%BF%E6%B7%B7%E5%90%88"><span class="toc-number">1.5.1.2.</span> <span class="toc-text">2. 屏幕空间法线混合</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%84%E4%BC%B0%E6%B5%81%E7%A8%8B%EF%BC%88%E4%BB%A5Shiny-Blender%E6%95%B0%E6%8D%AE%E9%9B%86%E4%B8%BA%E4%BE%8B%EF%BC%89"><span class="toc-number">1.5.2.</span> <span class="toc-text">评估流程（以Shiny Blender数据集为例）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A41%EF%BC%9A%E8%AE%AD%E7%BB%83%E5%8E%9F%E5%A7%8B3DGS%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.5.2.1.</span> <span class="toc-text">步骤1：训练原始3DGS模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A42%EF%BC%9A%E6%B4%BE%E7%94%9F%E6%B3%95%E7%BA%BF%E5%9C%BA"><span class="toc-number">1.5.2.2.</span> <span class="toc-text">步骤2：派生法线场</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A43%EF%BC%9A%E6%B8%B2%E6%9F%93%E6%B3%95%E7%BA%BF%E5%9B%BE%E5%83%8F"><span class="toc-number">1.5.2.3.</span> <span class="toc-text">步骤3：渲染法线图像</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%A5%E9%AA%A44%EF%BC%9A%E8%AE%A1%E7%AE%97%E6%B3%95%E7%BA%BFMAE"><span class="toc-number">1.5.2.4.</span> <span class="toc-text">步骤4：计算法线MAE</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%AF%E5%B7%AE%E6%9D%A5%E6%BA%90%E5%88%86%E6%9E%90"><span class="toc-number">1.5.3.</span> <span class="toc-text">误差来源分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%87%A0%E4%BD%95%E8%A1%A8%E7%A4%BA%E7%BC%BA%E9%99%B7"><span class="toc-number">1.5.3.1.</span> <span class="toc-text">1. 几何表示缺陷</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E6%B4%BE%E7%94%9F%E7%AD%96%E7%95%A5%E5%B1%80%E9%99%90"><span class="toc-number">1.5.3.2.</span> <span class="toc-text">2. 派生策略局限</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%95%B0%E6%8D%AE%E7%BB%9F%E8%AE%A1%EF%BC%88Shiny-Blender%EF%BC%89"><span class="toc-number">1.5.3.3.</span> <span class="toc-text">3. 数据统计（Shiny Blender）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8E%E6%98%BE%E5%BC%8F%E6%B3%95%E7%BA%BF%E6%96%B9%E6%B3%95%E7%9A%84%E5%AF%B9%E6%AF%94"><span class="toc-number">1.5.4.</span> <span class="toc-text">与显式法线方法的对比</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%99%84%EF%BC%9A%E6%B3%95%E7%BA%BF%E5%8F%AF%E8%A7%86%E5%8C%96%E5%AF%B9%E6%AF%94"><span class="toc-number">1.5.5.</span> <span class="toc-text">附：法线可视化对比</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%87%E7%94%A8%E5%BB%B6%E8%BF%9F%E6%B8%B2%E6%9F%93%EF%BC%88Deferred-Shading%EF%BC%89%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8A%A8%E6%9C%BA"><span class="toc-number">1.6.</span> <span class="toc-text">采用延迟渲染（Deferred Shading）的核心动机</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%94%8D-%E4%B8%A4%E7%AF%87%E8%AE%BA%E6%96%87%E7%9A%84%E5%BB%B6%E8%BF%9F%E6%B8%B2%E6%9F%93%E5%AE%9E%E7%8E%B0%E5%B7%AE%E5%BC%82"><span class="toc-number">1.6.1.</span> <span class="toc-text">🔍 两篇论文的延迟渲染实现差异</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9A%99%EF%B8%8F-1-DeferredGS-Wu-et-al"><span class="toc-number">1.6.1.1.</span> <span class="toc-text">⚙️ 1. DeferredGS [Wu et al.]</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%9A%A1-2-3D-Gaussian-Splatting-with-Deferred-Reflection-Ye-et-al"><span class="toc-number">1.6.1.2.</span> <span class="toc-text">⚡ 2. 3D Gaussian Splatting with Deferred Reflection [Ye et al.]</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%92%8E-%E6%A0%B8%E5%BF%83%E5%8C%BA%E5%88%AB%E6%80%BB%E7%BB%93"><span class="toc-number">1.6.2.</span> <span class="toc-text">💎 核心区别总结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%8C%90-%E6%8A%80%E6%9C%AF%E6%BC%94%E8%BF%9B%E6%84%8F%E4%B9%89"><span class="toc-number">1.6.3.</span> <span class="toc-text">🌐 技术演进意义</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2025/09/21/DeferredGS-%E5%92%8C-3DGS-DR%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94/" title="DeferredGS 和 3DGS-DR技术对比"><img src="/2025/09/21/DeferredGS-%E5%92%8C-3DGS-DR%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94/boy.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="DeferredGS 和 3DGS-DR技术对比"/></a><div class="content"><a class="title" href="/2025/09/21/DeferredGS-%E5%92%8C-3DGS-DR%E6%8A%80%E6%9C%AF%E5%AF%B9%E6%AF%94/" title="DeferredGS 和 3DGS-DR技术对比">DeferredGS 和 3DGS-DR技术对比</a><time datetime="2025-09-21T12:54:26.000Z" title="发表于 2025-09-21 20:54:26">2025-09-21</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/20/C-%E6%A0%B8%E5%BF%83%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" title="C++核心语言特性"><img src="/2025/09/20/C-%E6%A0%B8%E5%BF%83%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/joker.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="C++核心语言特性"/></a><div class="content"><a class="title" href="/2025/09/20/C-%E6%A0%B8%E5%BF%83%E8%AF%AD%E8%A8%80%E7%89%B9%E6%80%A7/" title="C++核心语言特性">C++核心语言特性</a><time datetime="2025-09-20T13:09:58.000Z" title="发表于 2025-09-20 21:09:58">2025-09-20</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/" title="3DGS-DR部署及训练教程"><img src="/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/pipeline.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="3DGS-DR部署及训练教程"/></a><div class="content"><a class="title" href="/2025/09/19/3DGS-DR%E9%83%A8%E7%BD%B2%E5%8F%8A%E8%AE%AD%E7%BB%83%E6%95%99%E7%A8%8B/" title="3DGS-DR部署及训练教程">3DGS-DR部署及训练教程</a><time datetime="2025-09-19T12:29:28.000Z" title="发表于 2025-09-19 20:29:28">2025-09-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/19/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%8E%9F%E5%88%99/" title="设计模式的原则"><img src="/2025/09/19/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%8E%9F%E5%88%99/design.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="设计模式的原则"/></a><div class="content"><a class="title" href="/2025/09/19/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%8E%9F%E5%88%99/" title="设计模式的原则">设计模式的原则</a><time datetime="2025-09-19T11:05:22.000Z" title="发表于 2025-09-19 19:05:22">2025-09-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2025/09/19/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" title="简单工厂模式"><img src="/2025/09/19/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/asl.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="简单工厂模式"/></a><div class="content"><a class="title" href="/2025/09/19/%E7%AE%80%E5%8D%95%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/" title="简单工厂模式">简单工厂模式</a><time datetime="2025-09-19T06:17:45.000Z" title="发表于 2025-09-19 14:17:45">2025-09-19</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 By 贺腾</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.0</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script src="/js/bg-player.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
